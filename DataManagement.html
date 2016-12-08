@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta http-equiv="imagetoolbar" content="no" />
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+<link rel="stylesheet" href="css/common.css" type="text/css" />
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="scripts/shCore.js" charset="Shift_JIS"></script>
+<script type="text/javascript" src="scripts/shBrushCss.js"></script>
+<script type="text/javascript" src="scripts/shBrushCpp.js"></script>
+<script type="text/javascript" src="scripts/shBrushPython.js"></script>
+<script type="text/javascript" src="shBrushPhp.js"></script>
+<link type="text/css" rel="stylesheet" href="styles/shCore.css" />
+<link type="text/css" rel="stylesheet" href="styles/shThemeDefault.css" />
+<script type="text/javascript">
+SyntaxHighlighter.all();
+</script>
+<title>ATLASソフトウェア講習会2016.12</title>
+<!--[if lt IE 7]>
+<script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/IE7.js" type="text/javascript"></script>
+<![endif]-->
+</head>
+<body>
+<div id="top">
+   <div id="header">
+      <h1><a href="index.html">ATLASソフトウェア講習会2016.12</a></h1>
+   <div id="topicPath">
+      <a href="index.html">ホーム</a> &raquo; <a href="Grid.html">データの取得と管理</a> 
+   <!-- /#topicPath --></div>
+   <div id="contents">
+      <div id="main">
+         <h2>このチュートリアル用のスライド</h2>
+         <p>
+	   <a href="slides/grid_computing.pdf">grid_computing.pdf</a></br> 
+	   <a href="slides/data_management.pdf">data_management.pdf</a> 
+	 </p>
+         <h2>ATLAS分散計算機環境でのデータ管理の方法</h2>
+ATLASデータの管理は、DQ2と呼ばれるデータマネージメントシステムで行われていました。DQ2においては、ファイルを束ねたデータセットまたは、データセットを束ねたデータセットコンテナという単位で管理されていました。このデータセットコンテナはデータセットだけでなくデータセットコンテナを束ねて作ることもできます。このDQ2に代わり、<font color="red">Rucio</font>というシステムが開発され、現在ではこのシステムによりデータの管理がなされています。Rucioにおいて、データセットの概念は重要ではありませんが、それらの概念は継承されています。Rucioではファイル/データセット/データセットコンテナは同一にScopeとオブジェクト名の組み合わせで表現されます。ここで、Scopeとは以下のように定義されています。
+         <table summary="">
+            <tr><th>Data Type</th><th>Scope</th><th>Example</th></tr>
+            <tr><td>User</td><td>user.[ATLAS CERN account]</td><td>user.ABCD</td></tr>
+            <tr><td>Group</td><td>group.[group name]</td><td>group.perf-tau</td></tr>
+            <tr><td>Detector</td><td>[Project]</td><td>data12_8TeV</td></tr>
+            <tr><td>Monte Carlo</td><td>[Project]</td><td>mc11_7TeV</td></tr>
+         </table>
+</br>
+このScopeと今までDQ2で使われてきたデータセット名を組み合わせたものを(DI) data identifierと呼び、以下のように表現されます。
+<ul>
+<li>scope:(ファイル名)</li>
+<li>scope:(データセット名)</li>
+<li>scope:(データセットコンテ名)</li>
+</ul>
+         </p>
+         <h2>AMI</h2>
+         <p>
+アトラスでは、Atlas Metadata Interface (AMI)というツールが用意されていて、そこでデータセットの検索などを行うことができます。簡単な使い方を確認してみましょう。
+<dl>
+<dd>$ setupATLAS</dd>
+<dd>$ localSetupPyAMI</dd>
+<dd>$ ami list datasets --type AOD data15_13TeV%physics_Main%</dd>
+<dd>data15_13TeV.00266904.physics_Main.merge.AOD.f594_m1435</dd>
+<dd>data15_13TeV.00266904.physics_Main.merge.AOD.r6847_p2358</dd>
+<dd>data15_13TeV.00266904.physics_Main.merge.AOD.r6944_p2410</dd>
+<dd>...</dd>
+</dl>
+--typeオプションでデータセットの種類を、その後にデータセット名のパターンを指定しています。%は任意の文字が入ります。
+データセット名からどういうデータなのかが推測できます。もう少しデータセットの詳細を確認してみましょう。
+<dl>
+<dd>$ ami show dataset info data15_13TeV.00266904.physics_Main.merge.AOD.f594_m1435</dd>
+</dl>
+さて、これらの情報は<a href="https://ami.in2p3.fr">Webインターフェース</a>からも確認できます。
+<br />
+<div align="center"><img src="./images/AMI.png"></div>
+<br />
+登録方法などは<a href="https://ami.in2p3.fr/pages/getting-started">こちら</a>から確認できます。
+Webページの"Dataset Browser"へと進み、ボックスにデータセット名のパターンを指定することで検索ができます。
+もう一つ、便利な機能として、"AMI-Tags"へと進み、ボックスにタグを指定するとそのタグのコンディションが確認できます。
+どういうことかと言うと、データセットにはf,r,m,pといったタグが付与されていますね。例えばf594をAMI-Tagsで検索してみると、
+AtlasProduction_20.1.5.5で処理したデータであることや、様々なコンディションが確認することが出来ます。
+同ページにある"TagCollector"というのはATLAS softwareのリリースを管理するツールです。ATLAS softwareの開発者や管理者になった場合に使用します。
+         </p>
+         <h2>Rucio</h2>
+         <p>
+Rucioを使ってデータのダウンロードを行ってみましょう。Rucioの環境設定をします。
+<dl>
+<dd>$ setupATLAS</dd>
+<dd>$ localSetupRucioClients</dd>
+<dd>$ voms-proxy-init -voms atlas</dd>
+</dl>
+Rucioコマンドが使えるかチェックしてみます。
+<dl>
+<dd>$ rucio whoami</dd>
+<dd>status     : ACTIVE</dd>
+<dd>account    : tomoe</dd>
+<dd>account_type : USER</dd>
+<dd>created_at : 2014-01-17T08:04:28</dd>
+<dd>suspended_at : None</dd>
+<dd>updated_at : 2014-01-17T08:04:28</dd>
+<dd>deleted_at : None</dd>
+<dd>email      : Tomoe.Kishimoto@cern.ch</dd>
+</dl>
+いくつかコマンドを試してみましょう。
+<dl>
+<dd>$ rucio list-rses | grep TOKYO</dd>
+<dd>TOKYO-LCG2_DATADISK</dd>
+<dd>TOKYO-LCG2_DET-MUON</dd>
+<dd>TOKYO-LCG2_LOCALGROUPDISK</dd>
+<dd>TOKYO-LCG2_PERF-JETS</dd>
+<dd>TOKYO-LCG2_PERF-MUONS</dd>
+<dd>TOKYO-LCG2_PHYS-EXOTICS</dd>
+<dd>TOKYO-LCG2_PHYS-HIGGS</dd>
+<dd>TOKYO-LCG2_PHYS-SUSY</dd>
+<dd>TOKYO-LCG2_SCRATCHDISK</dd>
+<dd>TOKYO-LCG2_TRIG-DAQ</dd>
+</dl>
+TOKYOで設定されている、Rucio Storage Element (RSE)を抜き出してみました。名前から推測出来ますが、
+例えばTOKYO-LCG2_DET-MUONというのはミューオン検出器専用のストレージです。
+rucio list-dids で、データセットを検索してみます、例えば、data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAODを名前に含むデータセットを検索します。
+<dl>
+<dd>$ rucio list-dids data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD*</dd>
+<dd>...</dd>
+<dd><font size="1">| data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_JETM4.f611_m1463_p2384_tid06035505_00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| DATASET      |</font></dd>
+<dd><font size="1">| data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_HIGG5D1.f611_m1463_p2384_tid06035502_00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| DATASET      |</font></dd>
+<dd><font size="1">| data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| DATASET      |</font></dd>
+<dd><font size="1">| data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_EGAM2.f611_m1463_p2384_tid06035485_00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| DATASET      |</font></dd>
+<dd><font size="1">| data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_HIGG2D2.f611_m1463_p2395_tid06180148_00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| DATASET      |</font></dd>
+<dd>...</dd>
+</dl>
+上記のうち、例えばdata15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466のレプリカを持っているサイトを検索します。
+<dl>
+<dd>$ <font size="1"> rucio list-dataset-replicas data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466</font></dd>
+<dd>+----------------------+---------+---------+</dd>
+<dd>|&nbsp;RSE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;FOUND&nbsp;|&nbsp;&nbsp;&nbsp;TOTAL&nbsp;|</dd>
+<dd>|----------------------+---------+---------|</dd>
+<dd>|&nbsp;TRIUMF-LCG2_DATADISK&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;|</dd>
+<dd>|&nbsp;RRC-KI-T1_DATADISK&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;|</dd>
+<dd>|&nbsp;TOKYO-LCG2_DATADISK&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;|</dd>
+<dd>|&nbsp;CERN-PROD_DERIVED&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;|</dd>
+<dd>+----------------------+---------+---------+</dd>
+</dl>
+TOKYO-LCG2_DATADISKにもこのデータセットがあることが分かります。次に、このデータセットに含まれるファイルのリストを表示します。
+<dl>
+<dd>$ <font size="1"> rucio list-files data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466</font></dd>
+</dl>
+ファイル名、GUID、チェックサム、ファイルサイズの順で表示されます。
+さて、data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1というファイルが見つかりました。このファイルをダウンロードしてみましょう。
+<dl>
+<dd>$ <font size="1"> rucio download data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1</font></dd>
+<dd>----------------------------------</dd>
+<dd>Download summary</dd>
+<dd>----------------------------------------</dd>
+<dd>DID data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1</dd>
+<dd>Total files :                                 1</dd>
+<dd>Downloaded files :                            1</dd>
+<dd>Files already found locally :                 0</dd>
+<dd>Files that cannot be downloaded :             0</dd>
+</dl>
+目的のファイルがダウンロード出来ました。今回は１ファイルだけダウンロードしましたたが、scope":データセット名"と指定することで、
+データセットに含まれるファイルを一度にダウンロード出来ます。Rucioクライアントのその使用方法の詳細については、
+<a href="http://rucio.cern.ch/client_howto.html">Rucio Client How To</a>を参照してください。
+         </p>
+         <h2>Replica Management, LOCALGROUPDISK</h2>
+         <p>
+一般ユーザは、既にグリッド上のディスクストレージにはなく、テープにアーカイブされているデータにアクセスできません。
+また、各Tier1にを中心として構成するATLASのクラウドをまたがったサイト間で、レプリカを作成することができません。
+しかしながら、<a href="https://rucio-ui.cern.ch/r2d2/request">Request Ruleインターフェース</a>使用すれば、それらのデータを取り寄せることができます。
+例えば他のサイトのATLASSCRATCHDISKやテープからTOKYO-LCG2の<font color="red">LOCALGROUPDISK</font>にレプリカを作成することができます。ここで、
+LOCALGROUPDISKとはアトラス日本メンバー専用のディスクストレージのことで、/atlas/jpのroleを持っている人であれば利用することが出来ます。
+一定時間経過すると自動的に消去される各サイトのSCRATCDISKとは違い、ある程度長い間データを保管できますので、グリッドへ投入するジョブの入力用データを置いておく場所として使うことができます。
+インターフェースの使用方法を簡単に説明します。
+<div align="center"><img src="./images/datri1.png" width="900"></div>
+<div align="center"><img src="./images/datri2.png" width="900"></div>
+<div align="center"><img src="./images/datri3.png" width="900"></div>
+また、pathenaやprun (<a href="PanDA.html">こちら</a>を参照してください)を使う場合に、<font color="red">--destSE</font>オプションを指定することで、
+ジョブの出力をこのLOCALGROUPDISKに書き込むことが出来ます。
+         </p>
+         <h2>FAX</h2>
+         <p>
+データの取得方法を学んだところで、ファイルを転送せずにROOTから直接グリッドストレージにあるファイルを読みこんでみましょう。
+<dl>
+<dd>$ setupATLAS</dd>
+<dd>$ localSetupFAX --rootVersion=current-SL6</dd>
+</dl>
+この設定で、デフォルトのSEはTokyoサイトになっています。
+<dl>
+<dd>$ echo $STORAGEPREFIX</dd>
+</dl>
+先ほどRucioによりダウンロードしたファイルのgLFN (global logical file name)を取得します。
+<dl>     
+<dd>$ <font size="1">fax-get-gLFNs data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466 > my_list_of_gLFNS.txt</font></dd>
+<dd>$ cat my_list_of_gLFNS.txt</dd>
+<dd><font size="1">root://lcg-se01.icepp.jp:1094//atlas/rucio/data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1</font></dd>
+</dl>
+取得したgLFNを使って、ROOTから直接読み込みます。
+<dl>     
+<dd>$ root</dd>
+<dd><font size="1">root [0] TFile *f = TFile::Open("root://lcg-se01.icepp.jp:1094//atlas/rucio/data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1");</font></dd>
+</dl>
+AODをROOTで読もうとしたので、たくさんwarningが出てしまいました。
+RootCoreを正しく設定(<a href="RootCore.html">こちら</a>を参照してください)すればこの方法で直接アクセスすることが出来ます。
+今回は、Tokyoサイトにあるファイルを読み込もうとしましたが、Tokyoサイトではなく、他の遠隔サイトにあるファイルも読み込むことができます。
+詳しい使い方は、<a href="https://twiki.cern.ch/twiki/bin/view/AtlasComputing/UsingFAXforEndUsersTutorial">FAX end-user Tutorial</a>を参照してください。
+         </p>
+      <!-- /#main --></div>
+      <!-- /#sub --></div>
+      <div id="pageTop">
+         <a href="#">ページのトップへ戻る</a>
+      <!-- /#pageTop --></div>
+   <!-- /#contents --></div>
+<!-- /#top --></div>
+</body>
+</html>
