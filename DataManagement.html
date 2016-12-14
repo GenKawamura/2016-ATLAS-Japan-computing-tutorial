@@ -34,11 +34,11 @@ SyntaxHighlighter.all();
       <div id="main">
          <h2>このチュートリアル用のスライド</h2>
          <p>
-	   <a href="slides/grid_computing.pdf">grid_computing.pdf</a></br> 
-	   <a href="slides/data_management.pdf">data_management.pdf</a> 
+	   <a href="slides/grid_computing.pdf">チュートリアル用ショートスライド (Grid基本環境等)</a></br> 
+	   <a href="slides/data_management.pdf">チュートリアル用ショートスライド (データ管理等)</a> 
 	 </p>
-         <h2>ATLAS分散計算機環境でのデータ管理の方法</h2>
-ATLASデータの管理は、DQ2と呼ばれるデータマネージメントシステムで行われていました。DQ2においては、ファイルを束ねたデータセットまたは、データセットを束ねたデータセットコンテナという単位で管理されていました。このデータセットコンテナはデータセットだけでなくデータセットコンテナを束ねて作ることもできます。このDQ2に代わり、<font color="red">Rucio</font>というシステムが開発され、現在ではこのシステムによりデータの管理がなされています。Rucioにおいて、データセットの概念は重要ではありませんが、それらの概念は継承されています。Rucioではファイル/データセット/データセットコンテナは同一にScopeとオブジェクト名の組み合わせで表現されます。ここで、Scopeとは以下のように定義されています。
+         <h2>ATLAS Grid環境でのRucioによるデータ管理の方法</h2>
+ATLASデータの管理は、DQ2と呼ばれるデータマネージメントシステムで行われていました。DQ2は2016年12月で完全にフェーズアウトし<fond color="red">Rucio</font>によってATLASのデータの管理がなされています。ATLASではファイルを束ねたデータセットまたは、データセットを束ねたデータセットコンテナという単位で管理されています。このデータセットコンテナはデータセットだけでなくデータセットコンテナを束ねて作ることもできます。Rucioではファイル/データセット/データセットコンテナは同一にScopeとオブジェクト名の組み合わせで表現されます。ここで、Scopeとは以下のように定義されています。
          <table summary="">
             <tr><th>Data Type</th><th>Scope</th><th>Example</th></tr>
             <tr><td>User</td><td>user.[ATLAS CERN account]</td><td>user.ABCD</td></tr>
@@ -47,31 +47,98 @@ ATLASデータの管理は、DQ2と呼ばれるデータマネージメントシ
             <tr><td>Monte Carlo</td><td>[Project]</td><td>mc11_7TeV</td></tr>
          </table>
 </br>
-このScopeと今までDQ2で使われてきたデータセット名を組み合わせたものを(DI) data identifierと呼び、以下のように表現されます。
+このScopeとデータセット名を組み合わせたものを(DI) data identifierと呼び、以下のように表現されます。
 <ul>
 <li>scope:(ファイル名)</li>
 <li>scope:(データセット名)</li>
-<li>scope:(データセットコンテ名)</li>
+<li>scope:(データセットコンテナ名)</li>
 </ul>
-         </p>
          <h2>AMI</h2>
          <p>
-アトラスでは、Atlas Metadata Interface (AMI)というツールが用意されていて、そこでデータセットの検索などを行うことができます。簡単な使い方を確認してみましょう。
+ATLASでは、Atlas Metadata Interface (AMI)というツールが用意されていて、そこで条件を指定してRucioのデータセットの検索などを行うことができます。
 <dl>
+
+</br>
+<b>AMI CLI</b>
+</br>
+AMIのコマンドライン・インターフェースから検索してみましょう。
 <dd>$ setupATLAS</dd>
-<dd>$ localSetupPyAMI</dd>
-<dd>$ ami list datasets --type AOD data15_13TeV%physics_Main%</dd>
-<dd>data15_13TeV.00266904.physics_Main.merge.AOD.f594_m1435</dd>
-<dd>data15_13TeV.00266904.physics_Main.merge.AOD.r6847_p2358</dd>
-<dd>data15_13TeV.00266904.physics_Main.merge.AOD.r6944_p2410</dd>
+<dd>$ lsetup pyami</dd>
+<dd>$ ami list datasets --type AOD data16_13TeV%physics_Main%</dd>
+<dd>data16_13TeV.00284285.physics_Main.merge.AOD.f662_m1453_r8067_p2645</dd>
+<dd>data16_13TeV.00284285.physics_Main.merge.AOD.f662_m1453_r8505_r8506_p2777</dd>
+<dd>data16_13TeV.00284285.physics_Main.merge.AOD.f662_m1453_r8515_r8516_p2777</dd>
+<dd>data16_13TeV.00284285.physics_Main.merge.AOD.f662_m1453_r8594_r8595_p2777</dd>
 <dd>...</dd>
 </dl>
+
 --typeオプションでデータセットの種類を、その後にデータセット名のパターンを指定しています。%は任意の文字が入ります。
-データセット名からどういうデータなのかが推測できます。もう少しデータセットの詳細を確認してみましょう。
+</br></br>
+また、各種データセットの属性（年、ピリオド、データタイプ等）で検索もできます。
+</br>
+2016年のピリオド・レベル１
 <dl>
-<dd>$ ami show dataset info data15_13TeV.00266904.physics_Main.merge.AOD.f594_m1435</dd>
+<dd>$ ami list dataperiods -y 2016 -l 1</dd>
+<dd>...</dd>
 </dl>
-さて、これらの情報は<a href="https://ami.in2p3.fr">Webインターフェース</a>からも確認できます。
+
+2016年のRunデータ、ピリオドA1
+<dl>
+<dd>$ ami list runs -y 2016 -p A1</dd>
+<dd>289496</dd>
+<dd>289645</dd>
+<dd>289646</dd>
+<dd>...</dd>
+</dl>
+
+2016年の検出データ、ピリオドA1
+<dl>
+<dd>$ ami list datasets data16_13TeV%periodA1.%</dd>
+<dd>data16_13TeV.periodA1.physics_Main.PhysCont.AOD.t0pro20_v01</dd>
+<dd>data16_13TeV.periodA1.physics_Main.PhysCont.DAOD_STDM2.grp16_v01_p2623</dd>
+<dd>data16_13TeV.periodA1.physics_Main.PhysCont.DAOD_STDM4.grp16_v01_p2623</dd>
+<dd>data16_13TeV.periodA1.physics_Main.PhysCont.DAOD_STDM5.grp16_v01_p2623</dd>
+<dd>data16_13TeV.periodA1.physics_Main.PhysCont.DAOD_STDM7.grp16_v01_p2623</dd>
+</dl>
+
+データセットの詳細を確認してみましょう。
+<dl>
+<dd>$ ami show dataset info data16_13TeV.00284285.physics_Main.merge.AOD.f662_m1453_r8067_p2645</dd>
+<dd>logicalDatasetName : data16_13TeV.00284285.physics_Main.merge.AOD.f662_m1453_r8067_p2645</dd>
+<dd>nFiles             : 0</dd>
+<dd>totalEvents        : 0</dd>
+<dd>totalSize          : NULL</dd>
+<dd>runNumber          : 284285</dd>
+<dd>period             : J6</dd>
+<dd>prodsysStatus      : NO EVENTS YET</dd>
+<dd>dataType           : AOD</dd>
+<dd>beamType           : NULL</dd>
+<dd>conditionsTag      : NULL</dd>
+<dd>geometryVersion    : NULL</dd>
+<dd>streamName         : physics_Main</dd>
+<dd>version            : f662_m1453_r8067_p2645</dd>
+<dd>lastModified       : 2016-06-09 18:35:05</dd>
+<dd>amiStatus          : VALID</dd>
+<dd>created            : 2016-06-09 18:35:04</dd>
+<dd>inContainer        : 0</dd>
+<dd>added_comment      : NULL</dd>
+<dd>keyword            : NULL</dd>
+<dd>prodsysIdentifier_0: 8650873</dd>
+<dd>taskStatus_0       : UNKNOWN:METADATA ERROR</dd>
+<dd>TIDState_0         : added</dd>
+<dd>task_lastModified_0: 2016-06-10 09:24:25</dd>
+</dl>
+
+データセットの起源も発見できます。
+<dl>
+<dd>$ ami show dataset prov data16_13TeV.00284285.physics_Main.merge.AOD.f662_m1453_r8067_p2645</dd>
+<dd>...</dd>
+</dl>
+
+</br>
+<b>AMI WebUI</b>
+</br>
+ATLAS Metadataの情報は<a href="https://ami.in2p3.fr">AMI WebUI</a>からも確認できます。
 <br />
 <div align="center"><img src="./images/AMI.png"></div>
 <br />
@@ -87,20 +154,20 @@ AtlasProduction_20.1.5.5で処理したデータであることや、様々な�
 Rucioを使ってデータのダウンロードを行ってみましょう。Rucioの環境設定をします。
 <dl>
 <dd>$ setupATLAS</dd>
-<dd>$ localSetupRucioClients</dd>
+<dd>$ lsetup rucio</dd>
 <dd>$ voms-proxy-init -voms atlas</dd>
 </dl>
 Rucioコマンドが使えるかチェックしてみます。
 <dl>
 <dd>$ rucio whoami</dd>
 <dd>status     : ACTIVE</dd>
-<dd>account    : tomoe</dd>
+<dd>account    : gkawamur</dd>
 <dd>account_type : USER</dd>
 <dd>created_at : 2014-01-17T08:04:28</dd>
 <dd>suspended_at : None</dd>
 <dd>updated_at : 2014-01-17T08:04:28</dd>
 <dd>deleted_at : None</dd>
-<dd>email      : Tomoe.Kishimoto@cern.ch</dd>
+<dd>email      : gen.kawamura@cern.ch</dd>
 </dl>
 いくつかコマンドを試してみましょう。
 <dl>
@@ -162,27 +229,60 @@ TOKYO-LCG2_DATADISKにもこのデータセットがあることが分かりま�
 データセットに含まれるファイルを一度にダウンロード出来ます。Rucioクライアントのその使用方法の詳細については、
 <a href="http://rucio.cern.ch/client_howto.html">Rucio Client How To</a>を参照してください。
          </p>
-         <h2>Replica Management, LOCALGROUPDISK</h2>
+         <h2>Rucioでのレプリカ管理</h2>
          <p>
-一般ユーザは、既にグリッド上のディスクストレージにはなく、テープにアーカイブされているデータにアクセスできません。
-また、各Tier1にを中心として構成するATLASのクラウドをまたがったサイト間で、レプリカを作成することができません。
-しかしながら、<a href="https://rucio-ui.cern.ch/r2d2/request">Request Ruleインターフェース</a>使用すれば、それらのデータを取り寄せることができます。
-例えば他のサイトのATLASSCRATCHDISKやテープからTOKYO-LCG2の<font color="red">LOCALGROUPDISK</font>にレプリカを作成することができます。ここで、
-LOCALGROUPDISKとはアトラス日本メンバー専用のディスクストレージのことで、/atlas/jpのroleを持っている人であれば利用することが出来ます。
-一定時間経過すると自動的に消去される各サイトのSCRATCDISKとは違い、ある程度長い間データを保管できますので、グリッドへ投入するジョブの入力用データを置いておく場所として使うことができます。
-インターフェースの使用方法を簡単に説明します。
+一般ユーザでも、各Tier1にを中心として構成するATLASの各国のコンピューティング・サイト間で、レプリカを作成することができます。他のサイトのATLASSCRATCHDISKやテープからTOKYO-LCG2の<font color="red">LOCALGROUPDISK</font>へレプリカを作成することができます。<font color="red">TOKYO-LCG2_LOCALGROUPDISK</font>とはアトラス日本メンバー専用のディスクストレージのことで、<font color="red">/atlas/jp</font>のVO roleを持っている人であれば利用することが出来ます。
+一定時間経過すると自動的に消去される各サイトのSCRATCDISKとは違い、ある程度長い間データを保管できますので、例えばグリッドへ投入するジョブの入力用データを置いておく場所として使うことができます。レプリカ作成はRucioのCLIあるいはRucio WebUI(R2D2)を使って行うことができます。
+</br>
+
+</br>
+<b>Rucio CLIによるレプリカ作成</b>
+</br>
+例: TOKYO-LCG2_SCRATCHDISKへの転送
+</br>
+<dl>
+<dd>$ rucio add-rule mc14_13TeV:mc14_13TeV.samplename --grouping DATASET 1 "TOKYO-LCG2_SCRATCHDISK"</dd>
+<dd>data16_13TeV.periodA1.physics_Main.PhysCont.AOD.t0pro20_v01</dd>
+</br>
+例: TOKYO-LCG2_LOCALGROUPDISKへの転送
+</br>
+<dl>
+<dd>$ rucio add-rule mc14_13TeV:mc14_13TeV.samplename --grouping DATASET 1 "TOKYO-LCG2_LOCALGROUPDISK"</dd>
+<dd>data16_13TeV.periodA1.physics_Main.PhysCont.AOD.t0pro20_v01</dd>
+</dl>
+</br>
+転送状況の確認 (<a href="https://rucio-ui.cern.ch/list_rules">https://rucio-ui.cern.ch/list_rules</a> でも確認できます)
+</br>
+<dl>
+<dd>$ rucio rule-info TRANSFER_ID</dd>
+<dd>data16_13TeV.periodA1.physics_Main.PhysCont.AOD.t0pro20_v01</dd>
+</dl>
+
+</br>
+レプリカの確認
+</br>
+<dl>
+<dd>$ rucio list-file-replicas datasetname</dd>
+<dd>data16_13TeV.periodA1.physics_Main.PhysCont.AOD.t0pro20_v01</dd>
+</dl>
+
+
+
+</br>
+<b>Rucio WebUI(R2D2)によるレプリカ作成</b>
+</br>
+<a href="https://rucio-ui.cern.ch/r2d2/request">Request Ruleインターフェース</a>使用すれば、Rucio CLIと同様にレプリカを作成できます。ブラウザにユーザー証明書が必要です。
 <div align="center"><img src="./images/datri1.png" width="900"></div>
 <div align="center"><img src="./images/datri2.png" width="900"></div>
 <div align="center"><img src="./images/datri3.png" width="900"></div>
-また、pathenaやprun (<a href="PanDA.html">こちら</a>を参照してください)を使う場合に、<font color="red">--destSE</font>オプションを指定することで、
-ジョブの出力をこのLOCALGROUPDISKに書き込むことが出来ます。
+また、pathenaやprun (<a href="JobManagement.html">こちら</a>を参照してください)を使う場合に、出力先SE<font color="red">--destSE</font>オプションで指定することで、ジョブの出力をこのLOCALGROUPDISKに書き込むことが出来ます。
          </p>
          <h2>FAX</h2>
          <p>
 データの取得方法を学んだところで、ファイルを転送せずにROOTから直接グリッドストレージにあるファイルを読みこんでみましょう。
 <dl>
 <dd>$ setupATLAS</dd>
-<dd>$ localSetupFAX --rootVersion=current-SL6</dd>
+<dd>$ lsetup fax root</dd>
 </dl>
 この設定で、デフォルトのSEはTokyoサイトになっています。
 <dl>

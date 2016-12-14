@@ -34,8 +34,7 @@ SyntaxHighlighter.all();
       <div id="main">
          <h2>このチュートリアル用のスライド</h2>
          <p>
-	   <a href="slides/grid_computing.pdf">grid_computing.pdf</a></br> 
-	   <a href="slides/job_management.pdf">job_management.pdf</a> 
+	   <a href="slides/job_management.pdf">チュートリアル用ショートスライド (ジョブ管理等)</a> 
 	 </p>
          <h2>ATALSでの分散計算環境での解析処理の投入方法(Gridジョブ)</h2>
 
@@ -47,13 +46,11 @@ Athenaのジョブを投入する場合は<font color="red">pathena</font>、Roo
          <p>
 login.icepp.jpあるいはlxplus.chでPanDAクライアントを使うためには以下の手順で設定を行ってください。
 <dl>
-<dd>$ export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase</dd>
-<dd>$ alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'</dd>
 <dd>$ setupATLAS</dd>
 </dl>
 EMI-UIをセットアップします。
 <dl>
-<dd>$ localSetupEmi</dd>
+<dd>$ lsetup emi</dd>
 </dl>
 Proxy証明書を作ります。
 <dl>
@@ -61,7 +58,7 @@ Proxy証明書を作ります。
 </dl>
 Panda Clientをセットアップします。
 <dl>
-<dd>$ localSetupPandaClient</dd>
+<dd>$ lsetup panda</dd>
 </dl>
 pbookというジョブのbookkeepingアプリケーションを起動してみましょう。
 <dl>
