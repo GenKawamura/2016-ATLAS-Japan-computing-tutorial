@@ -87,7 +87,7 @@ pbookというジョブのbookkeepingアプリケーションを起動してみ�
 </dl>
 Pandaクライアントを設定して、HelloWorldOptions.pyをグリッドジョブとして投入しましょう。
 <dl>
-<dd>$ localSetupPandaClient </dd>
+<dd>$ lsetup panda </dd>
 <dd>$ pathena HelloWorldOptions.py --outDS user.<font color="red">YourNickname</font>.tutorial2016.1 --noOutput </dd>
 </dl>
 エラーが出る場合は、voms-proxy-destroyでプロキシ証明書を破棄してから、もう一度試してください
@@ -192,8 +192,7 @@ MyAnalysisAlg_options.pyの入力ファイルを--inDSで指定しました。pb
 </dl>
 それでは、投入します。
 <dl>
-<dd>$ setupATLAS</dd>
-<dd>$ localSetupPandaClient</dd>
+<dd>$ lsetup panda</dd>
 <dd>$ prun --exec "test.sh" --outDS user.<font color="red">YourNickname</font>.tutorial2016.3 --outputs test.out</dd>
 </dl>
 --outputsオプションで出力ファイルを指定しています。例えば、ROOTを実行して、histograms.rootというようなファイルを生成する場合には--outputs histograms.rootとするわけです。さて、prunを実行するには prun --exec "実行コマンド"だけでよいことが分かります。pathenaと同様にpbookやPanDA monitorを使ってジョブを確認してください。ジョブが終了したら、出力ファイルをローカルに取り寄せます。

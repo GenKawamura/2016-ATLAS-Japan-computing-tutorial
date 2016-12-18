@@ -210,7 +210,7 @@ rucio list-dids で、データセットを検索してみます、例えば、d
 </dl>
 TOKYO-LCG2_DATADISKにもこのデータセットがあることが分かります。次に、このデータセットに含まれるファイルのリストを表示します。
 <dl>
-<dd>$ <font size="1"> rucio list-files data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466</font></dd>
+<dd>$ <font size="2"> rucio list-files data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466</font></dd>
 </dl>
 ファイル名、GUID、チェックサム、ファイルサイズの順で表示されます。
 さて、data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1というファイルが見つかりました。このファイルをダウンロードしてみましょう。
@@ -241,29 +241,51 @@ TOKYO-LCG2_DATADISKにもこのデータセットがあることが分かりま�
 例: TOKYO-LCG2_SCRATCHDISKへの転送
 </br>
 <dl>
-<dd>$ rucio add-rule mc14_13TeV:mc14_13TeV.samplename --grouping DATASET 1 "TOKYO-LCG2_SCRATCHDISK"</dd>
-<dd>data16_13TeV.periodA1.physics_Main.PhysCont.AOD.t0pro20_v01</dd>
+<dd>$ rucio add-rule data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466 --grouping DATASET 1 "TOKYO-LCG2_SCRATCHDISK"</dd>
+<dd><font color="red">ルール実行後Transfer IDをチェック</font></dd>
 </br>
 例: TOKYO-LCG2_LOCALGROUPDISKへの転送
 </br>
 <dl>
-<dd>$ rucio add-rule mc14_13TeV:mc14_13TeV.samplename --grouping DATASET 1 "TOKYO-LCG2_LOCALGROUPDISK"</dd>
-<dd>data16_13TeV.periodA1.physics_Main.PhysCont.AOD.t0pro20_v01</dd>
+<dd>$ rucio add-rule data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466 --grouping DATASET 1 "TOKYO-LCG2_LOCALGROUPDISK"</dd>
+<dd><font color="red">ルール実行後Transfer IDをチェック</font></dd>
 </dl>
 </br>
 転送状況の確認 (<a href="https://rucio-ui.cern.ch/list_rules">https://rucio-ui.cern.ch/list_rules</a> でも確認できます)
 </br>
 <dl>
-<dd>$ rucio rule-info TRANSFER_ID</dd>
-<dd>data16_13TeV.periodA1.physics_Main.PhysCont.AOD.t0pro20_v01</dd>
+<dd>$ rucio rule-info 9a6595b7040842e5ad42b9d1d6bb3fff</dd>
+<dd>Id:                         9a6595b7040842e5ad42b9d1d6bb3fff</dd>
+<dd>Account:                    gkawamur</dd>
+<dd>Scope:                      data15_13TeV</dd>
+<dd>Name:                       data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466</dd>
+<dd>RSE Expression:             TOKYO-LCG2_SCRATCHDISK</dd>
+<dd>Copies:                     1</dd>
+<dd>State:                      REPLICATING</dd>
+<dd>Locks OK/REPLICATING/STUCK: 0/1/0</dd>
+<dd>Grouping:                   DATASET</dd>
+<dd>Expires at:                 2017-01-02 19:49:02</dd>
+<dd>Locked:                     False</dd>
+<dd>Weight:                     None</dd>
+<dd>Created at:                 2016-12-18 19:49:03</dd>
+<dd>Updated at:                 2016-12-18 19:49:03</dd>
+<dd>Error:                      None</dd>
+<dd>Subscription Id:            None</dd>
+<dd>Source replica expression:  None</dd>
+<dd>Activity:                   User Subscriptions</dd>
+<dd>Comment:                    None</dd>
+<dd>Ignore Quota:               False</dd>
+<dd>Ignore Availability:        False</dd>
+<dd>Purge replicas:             False</dd>
+<dd>Notification:               NO</dd>
+<dd>End of life:                2017-04-10 13:53:09</dd>
 </dl>
 
 </br>
 レプリカの確認
 </br>
 <dl>
-<dd>$ rucio list-file-replicas datasetname</dd>
-<dd>data16_13TeV.periodA1.physics_Main.PhysCont.AOD.t0pro20_v01</dd>
+<dd>$ rucio list-file-replicas data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466</dd>
 </dl>
 
 
@@ -279,7 +301,7 @@ TOKYO-LCG2_DATADISKにもこのデータセットがあることが分かりま�
          </p>
          <h2>FAX</h2>
          <p>
-データの取得方法を学んだところで、ファイルを転送せずにROOTから直接グリッドストレージにあるファイルを読みこんでみましょう。
+Rucioでのデータの移動・取得方法を学んだところで、ファイルを転送せずにROOTから直接グリッドストレージにあるファイルをリモートIO経由で読みこんでみましょう。
 <dl>
 <dd>$ setupATLAS</dd>
 <dd>$ lsetup fax root</dd>
@@ -288,21 +310,38 @@ TOKYO-LCG2_DATADISKにもこのデータセットがあることが分かりま�
 <dl>
 <dd>$ echo $STORAGEPREFIX</dd>
 </dl>
-先ほどRucioによりダウンロードしたファイルのgLFN (global logical file name)を取得します。
-<dl>     
-<dd>$ <font size="1">fax-get-gLFNs data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466 > my_list_of_gLFNS.txt</font></dd>
-<dd>$ cat my_list_of_gLFNS.txt</dd>
-<dd><font size="1">root://lcg-se01.icepp.jp:1094//atlas/rucio/data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1</font></dd>
+RucioデータセットのファイルのgLFN (global logical file name)を取得します。
+<dl>
+<dd>$ ami list datasets data16_13TeV.%physics_Main.merge.DAOD_HIGG1D1%</dd>
+<dd>...</dd>
+<dd>data16_13TeV.00311563.physics_Main.merge.DAOD_HIGG1D1.f758_m1710_p2840</dd>
+<dd>...</dd>
+<dd></dd>
+<dd>$ fax-get-gLFNs data16_13TeV.00310738.physics_Main.merge.DAOD_HIGG1D1.f756_m1704_p2840</dd>
+<dd>...</dd>
+<dd>root://lcg-se01.icepp.jp:1094//atlas/rucio/data16_13TeV:DAOD_HIGG1D1.09697332._000257.pool.root.1</dd>
 </dl>
 取得したgLFNを使って、ROOTから直接読み込みます。
 <dl>     
 <dd>$ root</dd>
-<dd><font size="1">root [0] TFile *f = TFile::Open("root://lcg-se01.icepp.jp:1094//atlas/rucio/data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1");</font></dd>
+<dd>root [0] TFile *f = TFile::Open("root://lcg-se01.icepp.jp:1094//atlas/rucio/data16_13TeV:DAOD_HIGG1D1.09697332._000257.pool.root.1");</dd>
+<dd>root [1] f->ls()</dd>
 </dl>
 AODをROOTで読もうとしたので、たくさんwarningが出てしまいました。
 RootCoreを正しく設定(<a href="RootCore.html">こちら</a>を参照してください)すればこの方法で直接アクセスすることが出来ます。
 今回は、Tokyoサイトにあるファイルを読み込もうとしましたが、Tokyoサイトではなく、他の遠隔サイトにあるファイルも読み込むことができます。
 詳しい使い方は、<a href="https://twiki.cern.ch/twiki/bin/view/AtlasComputing/UsingFAXforEndUsersTutorial">FAX end-user Tutorial</a>を参照してください。
+         </p>
+
+         <h2>参考文献、リンク等</h2>
+         <p>
+<a href="http://tomoe.web.cern.ch/tomoe/AtlasSoftWareTutorial/2016/Grid.html">ATLASソフトウェア講習会2016.01</a></br>
+<a href="http://rucio.cern.ch/index.html" >Rucio Documentation</a></br>
+ATLAS-D meeting 2015 Rucio Tutorial, Thomas Beermann</br>
+ATLAS-D meeting 2016 Grid/Rucio Tutorial, Gen Kawamura</br>
+<a href="https://ami.in2p3.fr/pyAMI/" >pyAMI ATLAS documentation</a></br>
+<a href="https://indico.cern.ch/event/465378/">ATLAS Software Tutorial, Feb 2016</a></br>
+
          </p>
       <!-- /#main --></div>
       <!-- /#sub --></div>
