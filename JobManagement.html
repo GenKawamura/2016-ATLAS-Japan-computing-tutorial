@@ -42,43 +42,13 @@ ATLASのユーザー解析ジョブをGridに投入するには<a href="https://
 Athenaのジョブを投入する場合は<font color="red">pathena</font>、Rootやその他の一般のジョブを投入する場合は<font color="red">prun</font>というコマンドを使います。
 それでは、このpathenaやprunといったPanDAクライアントの使い方を確認していきます。
          </p>
-<h2>環境設定</h2>
-         <p>
-login.icepp.jpあるいはlxplus.chでPanDAクライアントを使うためには以下の手順で設定を行ってください。
-<dl>
-<dd>$ setupATLAS</dd>
-</dl>
-EMI-UIをセットアップします。
-<dl>
-<dd>$ lsetup emi</dd>
-</dl>
-Proxy証明書を作ります。
-<dl>
-<dd>$ voms-proxy-init -voms atlas</dd>
-</dl>
-Panda Clientをセットアップします。
-<dl>
-<dd>$ lsetup panda</dd>
-</dl>
-pbookというジョブのbookkeepingアプリケーションを起動してみましょう。
-<dl>
-<dd>$ pbook</dd>
-<dd>INFO : Synchronizing local repository ...</dd>
-<dd>INFO : Got 0 jobs to be updated</dd>
-<dd>INFO : Synchronization Completed</dd>
-<dd>INFO : Done</dd>
-<dd></dd>
-<dd>Start pBook 0.5.61</dd>
-<dd>>>> </dd>
-</dl>
-上記のように表示されれば正常に動作しています。Ctrl-Dで抜けます。
-         </p>
+
 <h2>Pathenaの使い方</h2>
          <p>
 新しいセッションを開いて、Athenaの環境設定から始めましょう。
 <dl>
+<dd>$ mkdir -v tutorial2016; cd tutorial2016</dd>
 <dd>$ setupATLAS</dd>
-<dd>$ cd tutorial2016</dd>
 <dd>$ asetup AtlasProduction 20.7.5.1 here</dd>
 </dl>
 適当なディレクトリを作成して、HelloWorldOptions.pyを取得します。
@@ -109,49 +79,50 @@ HelloWorldOptions.pyはファイルを出力しないので、--noOutputとし�
 <dd>INFO : Done</dd>
 
 <dd>Start pBook 0.5.61</dd>
-<dd>>>> show(120308)</dd>
+<dd>>>> show()</dd>
+<dd>======================================</dd>
+<dd>     jediTaskID : 10262517</dd>
+<dd>     taskStatus : done</dd>
+<dd>       JobsetID : 94</dd>
+<dd>           type : panda-client-0.5.72-jedi-athena</dd>
+<dd>        release : Atlas-20.7.5</dd>
+<dd>          cache : AtlasProduction-20.7.5.1</dd>
+<dd>           inDS : </dd>
+<dd>          outDS : user.gkawamur.tutorial2016.12.log/</dd>
+<dd>   creationTime : 2016-12-19 14:49:51</dd>
+<dd>     lastUpdate : 2016-12-19 14:51:43</dd>
+<dd>         params : pathena HelloWorldOptions.py --outDS user.gkawamur.tutorial2016.12 --noOutput</dd>
+<dd>    inputStatus : </dd>
+<dd>             finished : 1</dd>
+<dd></dd>
 </dl>
-JobIDが120308であることがわかります。show()コマンドで確認しています。
+show()コマンドでPanDA Taskの状態を確認しています。
+上記のように表示されれば正常に動作しています。Ctrl-Dで抜けます。
+
 <a href="http://bigpanda.cern.ch">PanDA monitor</a>でも確認してみましょう。
 Userに自分のニックネームを入れて、Submitを押すとジョブの状態が確認出来ます
 (自分のジョブを表示するページはよく使うので、ブックマークしておきましょう)
-ジョブが完了すると以下のようなメールが届きます:
-<pre style="font-size: 0.9em;color: blue;line-height: 100%;">
-Summary of TaskID:7923779
-
-Created : 2016-03-13 22:42:16 (UTC)
-Ended   : 2016-03-13 23:05:13.508723 (UTC)
-
-Final Status : done
-
-Total Number of Inputs : 1
-            Succeeded : 1
-            Failed    : 0
-            Cancelled : 0
-
-Error Dialog : None
-
-Log : user.tomoe.tutorial2016.1.log/
-
-Parameters : pathena HelloWorldOptions.py --outDS user.tomoe.tutorial2016.1 --noOutput
-
-PandaMonURL : http://bigpanda.cern.ch/task/7923779/
-
-Report Panda problems of any sort to
-
- the eGroup for help request
-   hn-atlas-dist-analysis-help@cern.ch
-
- the JIRA portal for software bug
-   https://its.cern.ch/jira/browse/ATLASPANDA
-</pre>
-上記のメールに書かれているログファイルを取り寄せます。
+タスクを辿るとBuildジョブとRunジョブを発見できます。
+</br>
+<div align="center"><img src="./images/panda_job_output.png"></div>
+</br>
+グリッドジョブやAthenaやPanDA Pilot等一連のログファイルはPanDA monitorからブラウザを使っても見れますが、ここではRunジョブのログコンテナからRucioでローカルディスクへダウンロードしてチェックしてみます。
+</br>
+<div align="center"><img src="./images/panda_log_container.png"></div>
+</br>
 <dl>
-<dd>$ rucio download user.tomoe.tutorial2016.1.log/ </dd>
-<dd>$ cd user.tomoe.tutorial2016.1.log/</dd>
-<dd>$ tar zxvf user.tomoe.tutorial2016.1.log.7923779.000001.log.tgz</dd>
-<dd>$ vi tarball_PandaJob_2791426050_ANALY_LPC/athena_stdout.txt</dd>
+<dd>$ rucio download user.gkawamur.tutorial2016.12.log/ </dd>
+<dd>$ cd user.gkawamur.tutorial2016.12.log</dd>
+<dd>$ tar zxvf user.gkawamur.tutorial2016.12.log.10262517.000001.log.tgz</dd> 
+<dd>tarball_PandaJob_3131853110_ANALY_IEPSAS-Kosice/</dd>
+<dd>tarball_PandaJob_3131853110_ANALY_IEPSAS-Kosice/memory_monitor_summary.json</dd>
+<dd>tarball_PandaJob_3131853110_ANALY_IEPSAS-Kosice/jobState-3131853110.pickle</dd>
+<dd>tarball_PandaJob_3131853110_ANALY_IEPSAS-Kosice/PoolFileCatalog.xml</dd>
+<dd>tarball_PandaJob_3131853110_ANALY_IEPSAS-Kosice/athena_stdout.txt</dd>
+<dd>...</dd>
+<dd>$ less tarball_PandaJob_3131853110_ANALY_IEPSAS-Kosice/athena_stdout.txt</dd>
 </dl>
+
 HelloWorldプルグラムが正しく動いたことが分かります。次は、<a href=""Athena.html"">ESD解析 (ROOT)</a>で作成したプログラムをグリッドで実行して、
 ヒストグラムをローカルにダウンロードしてみましょう。まず、$TestAreaでMyNewPackageがコンパイルされていることを確認しましょう。
 <dl>
@@ -248,7 +219,7 @@ macrotest.Cがinput.txtに書かれたファイルを読み込んでいく、と
 <dl>
 <dd>$ cd ROOTAnalysisTutorial</dd>
 <dd>$ setupATLAS</dd>
-<dd>$ localSetupPandaClient</dd>
+<dd>$ lsetup panda</dd>
 <dd>$ lsetup rcsetup</dd>
 <dd>$ cd grid</dd>
 </dl>
@@ -311,6 +282,16 @@ void ATestSubmit (const std::string& submitDir)
 <dd>root [1] TBrowser t  </dd>
 </dl>
 グリッドで処理することが出来ました。
+         </p>
+
+         <h2>参考文献、リンク等</h2>
+         <p>
+<a href="http://tomoe.web.cern.ch/tomoe/AtlasSoftWareTutorial/2016/PanDA.html">ATLASソフトウェア講習会2016.01 ジョブ管理</a></br>
+<a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialGettingDatasets">Software twiki tutorial</a></br>
+ATLAS-D meeting 2016 Grid/Rucio Tutorial, Gen Kawamura</br>
+<a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialUsingTheGrid">Monitoring Your Grid Jobs, Andrew Washbrook University of Edinburgh, ATLAS Software & Computing Tutorials 14th January 2015 PUC, Chile Software tutorial using Grid</a></br>
+<a href="https://indico.cern.ch/event/465378/">ATLAS Software Tutorial, Feb 2016</a></br>
+<a href="http://iopscience.iop.org/article/10.1088/1742-6596/664/6/062065/meta">Calafiura, Paolo, et al. "The ATLAS Event Service: A new approach to event processing." Journal of Physics: Conference Series. Vol. 664. No. 6. IOP Publishing, 2015.</a></br>
 
          </p>
       <!-- /#main --></div>

@@ -75,13 +75,8 @@ AMIのコマンドライン・インターフェースから検索してみま�
 --typeオプションでデータセットの種類を、その後にデータセット名のパターンを指定しています。%は任意の文字が入ります。
 </br></br>
 また、各種データセットの属性（年、ピリオド、データタイプ等）で検索もできます。
+Run2の実DataとMCは<a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DataMCForAnalysis">Twiki - Data and Monte Carlo Datasets for Analysis</a>等にまとめられています。
 </br>
-2016年のピリオド・レベル１
-<dl>
-<dd>$ ami list dataperiods -y 2016 -l 1</dd>
-<dd>...</dd>
-</dl>
-
 2016年のRunデータ、ピリオドA1
 <dl>
 <dd>$ ami list runs -y 2016 -p A1</dd>
@@ -129,7 +124,7 @@ AMIのコマンドライン・インターフェースから検索してみま�
 <dd>task_lastModified_0: 2016-06-10 09:24:25</dd>
 </dl>
 
-データセットの起源も発見できます。
+データセットの起源(RAW等)も発見できます。
 <dl>
 <dd>$ ami show dataset prov data16_13TeV.00284285.physics_Main.merge.AOD.f662_m1453_r8067_p2645</dd>
 <dd>...</dd>
@@ -327,20 +322,19 @@ RucioデータセットのファイルのgLFN (global logical file name)を取�
 <dd>root [0] TFile *f = TFile::Open("root://lcg-se01.icepp.jp:1094//atlas/rucio/data16_13TeV:DAOD_HIGG1D1.09697332._000257.pool.root.1");</dd>
 <dd>root [1] f->ls()</dd>
 </dl>
-AODをROOTで読もうとしたので、たくさんwarningが出てしまいました。
-RootCoreを正しく設定(<a href="RootCore.html">こちら</a>を参照してください)すればこの方法で直接アクセスすることが出来ます。
-今回は、Tokyoサイトにあるファイルを読み込もうとしましたが、Tokyoサイトではなく、他の遠隔サイトにあるファイルも読み込むことができます。
-詳しい使い方は、<a href="https://twiki.cern.ch/twiki/bin/view/AtlasComputing/UsingFAXforEndUsersTutorial">FAX end-user Tutorial</a>を参照してください。
+AODをROOTで読もうとしたので、たくさんwarningが出てしまいました。RootCoreを正しく設定すればこの方法で直接アクセスすることが出来ます。
+今回は、TokyoサイトのFAX IOからファイルを読み込みましたが、他のFAX ホストからでも（一番近いファイルを）読み込むことができます。
          </p>
 
          <h2>参考文献、リンク等</h2>
          <p>
-<a href="http://tomoe.web.cern.ch/tomoe/AtlasSoftWareTutorial/2016/Grid.html">ATLASソフトウェア講習会2016.01</a></br>
+<a href="http://tomoe.web.cern.ch/tomoe/AtlasSoftWareTutorial/2016/Grid.html">ATLASソフトウェア講習会2016.01 データ管理</a></br>
 <a href="http://rucio.cern.ch/index.html" >Rucio Documentation</a></br>
 ATLAS-D meeting 2015 Rucio Tutorial, Thomas Beermann</br>
 ATLAS-D meeting 2016 Grid/Rucio Tutorial, Gen Kawamura</br>
 <a href="https://ami.in2p3.fr/pyAMI/" >pyAMI ATLAS documentation</a></br>
 <a href="https://indico.cern.ch/event/465378/">ATLAS Software Tutorial, Feb 2016</a></br>
+<a href="https://twiki.cern.ch/twiki/bin/view/AtlasComputing/UsingFAXforEndUsersTutorial">FAX end-user Tutorial</a>
 
          </p>
       <!-- /#main --></div>
