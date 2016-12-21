@@ -43,9 +43,9 @@ Athenaのジョブを投入する場合は<font color="red">pathena</font>、Roo
 それでは、このpathenaやprunといったPanDAクライアントの使い方を確認していきます。
          </p>
 
-<h2>Pathenaの使い方</h2>
+<h2>Pathena Hello World ジョブ</h2>
          <p>
-新しいセッションを開いて、Athenaの環境設定から始めましょう。
+Athenaの環境設定から始めましょう。
 <dl>
 <dd>$ mkdir -v tutorial2016; cd tutorial2016</dd>
 <dd>$ setupATLAS</dd>
@@ -57,8 +57,9 @@ Athenaのジョブを投入する場合は<font color="red">pathena</font>、Roo
 </dl>
 Pandaクライアントを設定して、HelloWorldOptions.pyをグリッドジョブとして投入しましょう。
 <dl>
+<dd>$ lsetup emi </dd>
 <dd>$ lsetup panda </dd>
-<dd>$ pathena HelloWorldOptions.py --outDS user.<font color="red">YourNickname</font>.tutorial2016.1 --noOutput </dd>
+<dd>$ pathena HelloWorldOptions.py --outDS user.<font color="red">YourNickname</font>.tutorial2016.12 --noOutput </dd>
 </dl>
 エラーが出る場合は、voms-proxy-destroyでプロキシ証明書を破棄してから、もう一度試してください
 (ジョブの投入時にプロキシ証明書の生成を行うことが出来ます)。さて、Athenaジョブを投入する場合は、
@@ -100,13 +101,13 @@ show()コマンドでPanDA Taskの状態を確認しています。
 上記のように表示されれば正常に動作しています。Ctrl-Dで抜けます。
 
 <a href="http://bigpanda.cern.ch">PanDA monitor</a>でも確認してみましょう。
-Userに自分のニックネームを入れて、Submitを押すとジョブの状態が確認出来ます
-(自分のジョブを表示するページはよく使うので、ブックマークしておきましょう)
+User Searchに自分のニックネーム、あるいはTask Searchに先ほど投入したジョブのTask IDを入れて、Submitを押すとジョブの状態が確認出来ます。
 タスクを辿るとBuildジョブとRunジョブを発見できます。
-</br>
+</br></br>
 <div align="center"><img src="./images/panda_job_output.png"></div>
 </br>
-グリッドジョブやAthenaやPanDA Pilot等一連のログファイルはPanDA monitorからブラウザを使っても見れますが、ここではRunジョブのログコンテナからRucioでローカルディスクへダウンロードしてチェックしてみます。
+グリッドジョブやAthenaやPanDA Pilot等、一連のログファイルはPanDA monitorからブラウザを使っても見れますが、ここではRunジョブのログコンテナからRucioでローカルディスクへダウンロードしてチェックしてみます。
+</br>
 </br>
 <div align="center"><img src="./images/panda_log_container.png"></div>
 </br>
@@ -123,55 +124,72 @@ Userに自分のニックネームを入れて、Submitを押すとジョブの�
 <dd>$ less tarball_PandaJob_3131853110_ANALY_IEPSAS-Kosice/athena_stdout.txt</dd>
 </dl>
 
-HelloWorldプルグラムが正しく動いたことが分かります。次は、<a href=""Athena.html"">ESD解析 (ROOT)</a>で作成したプログラムをグリッドで実行して、
-ヒストグラムをローカルにダウンロードしてみましょう。まず、$TestAreaでMyNewPackageがコンパイルされていることを確認しましょう。
+pathena HelloWorldプログラムが正しく動いたことが分かります。pathenaの代わりに、athenaで実行してもローカルで同様の結果が得られることも（時間があれば）確認してみてください。
 <dl>
-<dd>$ cd $TestArea </dd>
-<dd>$ ls </dd>
-<dd>InstallArea  MyNewPackage  grid</dd>
+<dd>$ athena HelloWorldOptions.py </dd>
 </dl>
-では、投入してみます。
+
+</p>
+<h2>Pathena テストジョブ</h2>
+<p>
+
+</br>
+<b>Evgen イベントジェネレーター</b>
+</br>
+最初にEvgenを動かしてみましょう。
+
 <dl>
-<dd>$ cd grid </dd>
-<dd>$ cp ../MyNewPackage/run/MyAnalysisAlg_options.py . </dd>
-<dd>$ pathena MyAnalysisAlg_options.py --inDS user.tomoe.tutorial2016.ESD.1 --outDS user.<font color="red">YourNickname</font>.tutorial2016.2</dd>
+<dd>$ asetup 17.2.4,here,setup</dd>
 </dl>
-MyAnalysisAlg_options.pyの入力ファイルを--inDSで指定しました。pbook、PandaMonitorで確認してみてください。ジョブが完了したら、出力ファイルをダウンロードします。
+まず、athenaで（ローカルマシン上で）動くか見てみましょう。<a href="athena_job_options/jobOptions.pythia16.py">このPythiaジョブオプションファイル</a>をダウンロードしてください。このジョブオプションでは５イベントのみを生成します。
 <dl>
-<dd>$ rucio download user.tomoe.tutorial2016.2_MyNewPackage/ </dd>
-<dd>$ root user.tomoe.tutorial2016.2_MyNewPackage/user.tomoe.7924057.MyNewPackage._000001.root </dd>
-<dd>root [2] TBrowser t</dd>
+<dd>$ athena jobOptions.pythia16.py</dd>
 </dl>
-ヒストグラムをダウンロードすることが出来ました。グリッドを使えば、サイズの大きい入力ファイルをわざわざローカルにダウンロードしなくてよいことが分かります。
+
+Evgen用のジョブオプションファイルを指定して、５つのジョブをグリッドへ投入します。MC用出力データセットの命名規約は<a href="https://cds.cern.ch/record/1070318/files/gen-int-2007-001.pdf">ここ</a>を参照してください。
+<dl>
+<dd>$ lsetup panda</dd>
+<dd>$ pathena jobOptions.pythia16.py --outDS user.<font color="red">YourNickname</font>.456.ccaho.evgen.pool.v5 --split 5</dd>
+</dl>
+pbook、あるいはPandaMonitorで確認してみてください。終了までには10-15分ほど時間がかかります。</br>
+
+</br>
+<b>Analysis スケルトン</b>
+</br>
+次にAnalysis用のスケルトンをテストデータセットを使って動かしてみます。
+
+
+
 ジョブの出力ファイルは、ジョブが実行されたサイトの<font color="red">SCRATCHDISK</font>に書き出されます。しかし、SCRATCHDISKは長くて2週間、残り容量によってはもっと早いうちに自動的に消去されます。出力ファイルをある程度の期間保管したい場合や、Gridジョブで再利用したいジョブを投入する際に出力ファイルの転送先を<font color="red">--destSE</font>オプションで指定します。例えば、TOKYO-LCG2_LOCALGROUPDISKに転送する場合には以下のようになります。
 <dl>
 <dd>$ pathena HelloWorldOptions.py --outDS user.<font color="red">YourNickname</font>.tutorial2016.1 --noOutput --destSE TOKYO-LCG2_LOCALGROUPDISK</dd>
 </dl>
-         </p>
-<h2>prunの使い方</h2>
-         <p>
-次は、prunにより一般のジョブを投入してみます。まずは、簡単なスクリプトでテストしてみましょう。
+
+</p>
+<h2>prun Hello World ジョブ</h2>
+<p>
+
+次は、prunによりHello Worldジョブを投入してみます。まずは、簡単なスクリプトでテストしてみましょう。
 <dl>
-<dd>$ cd ROOTAnalysisTutorial</dd>
-<dd>$ mkdir grid</dd>
-<dd>$ cd grid</dd>
-<dd>$ cat << EOF > test.sh </dd>
-<dd>hostname > test.out </dd>
-<dd>printenv >> test.out </dd>
-<dd>EOF </dd>
+<dd>$ mkdir grid; cd grid</dd>
+<dd>$ echo -e "hostname > test.out\nprintenv >> test.out" > test.sh </dd>
 <dd>$ chmod +x test.sh</dd>
 </dl>
-それでは、投入します。
+それでは、prunでジョブを投入します。
 <dl>
 <dd>$ lsetup panda</dd>
-<dd>$ prun --exec "test.sh" --outDS user.<font color="red">YourNickname</font>.tutorial2016.3 --outputs test.out</dd>
+<dd>$ prun --exec "test.sh" --outDS user.<font color="red">YourNickname</font>.tutorial2016.12 --outputs test.out</dd>
 </dl>
 --outputsオプションで出力ファイルを指定しています。例えば、ROOTを実行して、histograms.rootというようなファイルを生成する場合には--outputs histograms.rootとするわけです。さて、prunを実行するには prun --exec "実行コマンド"だけでよいことが分かります。pathenaと同様にpbookやPanDA monitorを使ってジョブを確認してください。ジョブが終了したら、出力ファイルをローカルに取り寄せます。
 <dl>
-<dd>$ rucio download user.tomoe.tutorial2016.3_test.out/</dd>
-<dd>$ cat user.tomoe.tutorial2016.3_test.out/user.tomoe.7939538._000001.test.out</dd>
+<dd>$ rucio download user.gkawamur.tutorial2016.12_test.out/</dd>
+<dd>$ cat user.gkawamur.tutorial2016.12_test.out/user.gkawamur.7939538._000001.test.out</dd>
 </dl>
-さて、一般にグリッド上のNtupleをROOTで解析したい場合には、以下のようにコードを用意します。
+
+         </p>
+<h2>prun xAOD 解析ジョブ</h2>
+         <p>
+さて、一般にグリッド上のxAODをROOTで解析したい場合には、以下のようにコードを用意します。
 <pre class="brush:cpp">
 #include &lt;TROOT.h&gt;
 #include &lt;TChain.h&gt;
@@ -214,10 +232,9 @@ void macrotest()
 --inDSで指定したデータセットの中にあるファイル名をinput.txtに書き出して、
 macrotest.Cがinput.txtに書かれたファイルを読み込んでいく、という順番です。しかし、
 <a href="RootCore">xAOD (ROOT)</a>で用いたEventLoopにはprun用のドライバが用意されているので、
-少々手順を簡単にできます。では、実際にxAODの解析ジョブをグリッドに投入してみましょう。クリーンな環境で始めるために、
+手順を簡単にできます。では、実際にxAODの解析ジョブをグリッドに投入してみましょう。クリーンな環境で始めるために、
 新しいセッションを開いて、環境設定から始めます。
 <dl>
-<dd>$ cd ROOTAnalysisTutorial</dd>
 <dd>$ setupATLAS</dd>
 <dd>$ lsetup panda</dd>
 <dd>$ lsetup rcsetup</dd>
@@ -264,7 +281,7 @@ void ATestSubmit (const std::string& submitDir)
   // make the driver we want to use:
   // this one works by running the algorithm directly:
   EL::PrunDriver driver;
-  driver.options()->setString("nc_outputSampleName", "user.tomoe.tutorial2016.4");
+  driver.options()->setString("nc_outputSampleName", "user.gkawamur.tutorial2016.12");
   // we can use other drivers to run things on the Grid, with PROOF, etc.
 
   // process the job using the driver
@@ -275,10 +292,10 @@ void ATestSubmit (const std::string& submitDir)
 <dl>
 <dd>$ root -l -b -q '$ROOTCOREDIR/scripts/load_packages.C' 'ATestSubmit.cxx ("myGridJob")'</dd>
 </dl>
-投入に少々時間がかかります。ジョブが終わればダウンロードしてみましょう。
+投入に少々時間がかかります。ジョブが終わればまたRucioでダウンロードしてROOTのTBrowserで見てみましょう。
 <dl>
-<dd>$ rucio download user.tomoe.tutorial2016.4_hist/</dd>
-<dd>$ root user.tomoe.tutorial2016.6_hist/user.tomoe.7946627._000001.hist-output.root  </dd>
+<dd>$ rucio download user.gkawamur.tutorial2016.12_hist/</dd>
+<dd>$ root user.gkawamur.tutorial2016.12_hist/user.tomoe.7946627._000001.hist-output.root  </dd>
 <dd>root [1] TBrowser t  </dd>
 </dl>
 グリッドで処理することが出来ました。
@@ -287,6 +304,8 @@ void ATestSubmit (const std::string& submitDir)
          <h2>参考文献、リンク等</h2>
          <p>
 <a href="http://tomoe.web.cern.ch/tomoe/AtlasSoftWareTutorial/2016/PanDA.html">ATLASソフトウェア講習会2016.01 ジョブ管理</a></br>
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">Twiki - The PanDA Production and Distributed Analysis System</a></br>
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaAthena">Twiki - How to submit Athena jobs to Panda</a></br>
 <a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialGettingDatasets">Software twiki tutorial</a></br>
 ATLAS-D meeting 2016 Grid/Rucio Tutorial, Gen Kawamura</br>
 <a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialUsingTheGrid">Monitoring Your Grid Jobs, Andrew Washbrook University of Edinburgh, ATLAS Software & Computing Tutorials 14th January 2015 PUC, Chile Software tutorial using Grid</a></br>
