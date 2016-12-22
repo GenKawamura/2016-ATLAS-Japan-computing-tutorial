@@ -141,7 +141,8 @@ pathena HelloWorldプログラムが正しく動いたことが分かります�
 
 <dl>
 <dd>$ asetup 17.2.4,here,setup</dd>
-<dd>$ wget --no-check-certificate https://genkawamura.github.io/2016-ATLAS-Japan-computing-tutorial/athena_job_options/jobOptions.pythia16.py</dd>
+<dd>$ github_repo=https://genkawamura.github.io/2016-ATLAS-Japan-computing-tutorial</dd>
+<dd>$ wget --no-check-certificate $github_repo/athena_job_options/jobOptions.pythia16.py</dd>
 <dd>$ athena jobOptions.pythia16.py</dd>
 </dl>
 
@@ -312,9 +313,10 @@ if __name__ == "__main__":
 ではファイルを用意します。
 <dl>
 <dd>$ mkdir -v my_lovely_grid_pyroot; cd my_lovely_grid_pyroot</dd>
-<dd>$ wget --no-check-certificate https://genkawamura.github.io/2016-ATLAS-Japan-computing-tutorial/pyroot/pyroot_env.sh</dd>
-<dd>$ wget --no-check-certificate https://genkawamura.github.io/2016-ATLAS-Japan-computing-tutorial/pyroot/rucio-get-files.sh</dd>
-<dd>$ wget --no-check-certificate https://genkawamura.github.io/2016-ATLAS-Japan-computing-tutorial/pyroot/xAOD_electron_hist_example.py</dd>
+<dd>$ github_repo=https://genkawamura.github.io/2016-ATLAS-Japan-computing-tutorial</dd>
+<dd>$ wget --no-check-certificate $github_repo/pyroot/pyroot_env.sh</dd>
+<dd>$ wget --no-check-certificate $github_repo/pyroot/rucio-get-files.sh</dd>
+<dd>$ wget --no-check-certificate $github_repo/pyroot/xAOD_electron_hist_example.py</dd>
 <dd>$ chmod +x rucio-get-files.sh xAOD_electron_hist_example.py</dd>
 </dl>
 
@@ -344,14 +346,14 @@ if __name__ == "__main__":
 --inDSで指定したデータセットの中にあるファイル名(prunにより%INにセットされる)をinput.txtに書き出して、
 xAOD_electron_hist_example.pyがinput.txtに書かれたファイルを読み込んでいく、という順番です。
 
-インプットデータセットには200個のrootファイルが含まれています。ここでは１０個のrootファイルを使い、単純に１ファイル１ジョブのルールで分割します(--nFiles=10, --nFiesPerJob=1)。--forceStagedオプションを指定して、強制Stage-inで入力ファイルを計算ノードへ転送します。では、グリッドへ投入します。
+インプットデータセットには200個のrootファイルが含まれています。ここでは100個のrootファイルを使い、単純に１ファイル１ジョブのルールで分割します(--nFiles=100, --nFiesPerJob=1)。--forceStagedオプションを指定して、強制Stage-inで入力ファイルを計算ノードへ転送します。では、グリッドへ投入します。
 <dl>
 <dd> $ nickname=<font color="red">"YourNickname"</font></dd>
 <dd> $ inDS="valid2.117050.PowhegPythia_P2011C_ttbar.digit.AOD.e2657_s1933_s1964_r5534" </dd>
 <dd> $ outDS="user.${nickname}.tutorial.pyroot.xAOD.v0.1_$$" </dd>
 <dd> $ infile="input.txt" </dd>
 <dd> $ outfile="hist.root" </dd>
-<dd> $ prun --useRootCore --inDS=$inDS --forceStaged --outDS=$outDS --outputs=$outfile --nFiles=10 --nFilesPerJob=1 --exec="echo %IN > $infile; xAOD_electron_hist_example.py -i $infile -o $outfile" </dd>
+<dd> $ prun --useRootCore --inDS=$inDS --forceStaged --outDS=$outDS --outputs=$outfile --nFiles=100 --nFilesPerJob=1 --exec="echo %IN > $infile; xAOD_electron_hist_example.py -i $infile -o $outfile" </dd>
 </dl>
 
 ジョブが終わればRucioでダウンロードできます。出力されたrootファイルはマージされていませんが、ROOTのTBrowserで１ファイルのみを見てみましょう。

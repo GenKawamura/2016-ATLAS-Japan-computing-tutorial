@@ -208,7 +208,7 @@ TOKYO-LCG2_DATADISKにもこのデータセットがあることが分かりま�
 <dd>$ <font size="2"> rucio list-files data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466</font></dd>
 </dl>
 ファイル名、GUID、チェックサム、ファイルサイズの順で表示されます。
-さて、data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1というファイルが見つかりました。このファイルをダウンロードしてみましょう。
+さて、data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1というファイルが見つかりました。このデータセットをダウンロードしてみましょう。
 <dl>
 <dd>$ <font size="1"> rucio download data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466._0001.1</font></dd>
 <dd>----------------------------------</dd>
@@ -220,13 +220,13 @@ TOKYO-LCG2_DATADISKにもこのデータセットがあることが分かりま�
 <dd>Files already found locally :                 0</dd>
 <dd>Files that cannot be downloaded :             0</dd>
 </dl>
-目的のファイルがダウンロード出来ました。今回は１ファイルだけダウンロードしましたたが、scope":データセット名"と指定することで、
-データセットに含まれるファイルを一度にダウンロード出来ます。Rucioクライアントのその使用方法の詳細については、
+目的のデータセットがダウンロード出来ました。今回は１ファイルだけダウンロードしましたが、scope":データセット名"と指定することで、
+データセットに含まれるファイルが一括ダウンロードされます。Rucioクライアントのその使用方法の詳細については、
 <a href="http://rucio.cern.ch/client_howto.html">Rucio Client How To</a>を参照してください。
          </p>
          <h2>Rucioでのレプリカ管理</h2>
          <p>
-一般ユーザでも、各Tier1にを中心として構成するATLASの各国のコンピューティング・サイト間で、レプリカを作成することができます。他のサイトのATLASSCRATCHDISKやテープからTOKYO-LCG2の<font color="red">LOCALGROUPDISK</font>へレプリカを作成することができます。<font color="red">TOKYO-LCG2_LOCALGROUPDISK</font>とはアトラス日本メンバー専用のディスクストレージのことで、<font color="red">/atlas/jp</font>のVO roleを持っている人であれば利用することが出来ます。
+一般ユーザでも、各Tier1にを中心として構成されるATLASの各国のコンピューティング・サイト間で、レプリカ（いわゆるコピー）を作成することができます。他のサイトのATLASSCRATCHDISKやテープからTOKYO-LCG2の<font color="red">LOCALGROUPDISK</font>へレプリカを作成することができます。<font color="red">TOKYO-LCG2_LOCALGROUPDISK</font>とはアトラス日本メンバー専用のディスクストレージのことで、<font color="red">/atlas/jp</font>のVO roleを持っている人であれば利用することが出来ます。
 一定時間経過すると自動的に消去される各サイトのSCRATCDISKとは違い、ある程度長い間データを保管できますので、例えばグリッドへ投入するジョブの入力用データを置いておく場所として使うことができます。レプリカ作成はRucioのCLIあるいはRucio WebUI(R2D2)を使って行うことができます。
 </br>
 
