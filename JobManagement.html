@@ -39,7 +39,7 @@ SyntaxHighlighter.all();
          <h2>ATALSでの分散計算環境での解析処理の投入方法(Gridジョブ)</h2>
 
 ATLASのユーザー解析ジョブをGridに投入するには<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">Production ANd Distributed Analysis (PanDA)</a>というシステムを使います。
-Athenaのジョブを投入する場合は<font color="red">pathena</font>、Rootやその他の一般のジョブを投入する場合は<font color="red">prun</font>というコマンドを使います。
+Athenaのジョブを投入する場合は<font color="red">pathena</font>、ROOTやその他の一般のジョブを投入する場合は<font color="red">prun</font>というコマンドを使います。
 それでは、このpathenaやprunといったPanDAクライアントの使い方を確認していきます。
          </p>
 
@@ -102,11 +102,11 @@ show()コマンドでPanDA Taskの状態を確認しています。
 
 <a href="http://bigpanda.cern.ch">PanDA monitor</a>でも確認してみましょう。
 User Searchに自分のニックネーム、あるいはTask Searchに先ほど投入したジョブのTask IDを入れて、Submitを押すとジョブの状態が確認出来ます。
-タスクを辿るとBuildジョブとRunジョブを発見できます。
+タスクを辿ると("Show all jobs"をクリック)、実際に走っているグリッドジョブの"Buildジョブ"と"Runジョブ"を発見できます。
 </br></br>
 <div align="center"><img src="./images/panda_job_output.png"></div>
 </br>
-グリッドジョブやAthenaやPanDA Pilot等、一連のログファイルはPanDA monitorからブラウザを使っても見れますが、ここではRunジョブのログコンテナからRucioでローカルディスクへダウンロードしてチェックしてみます。
+グリッドジョブやAthenaやPanDA Pilot等、一連のログファイルはPanDA monitorからブラウザを使っても見れますが、ここではRunジョブのアウトプットコンテナからRucioでローカルディスクへダウンロードしてチェックしてみます。
 </br>
 </br>
 <div align="center"><img src="./images/panda_log_container.png"></div>
@@ -155,12 +155,12 @@ pbook、あるいはPandaMonitorで確認してみてください。終了まで
 </br>
 <b>TOKYO-LCG2_LOCALGROUPDISK</b>
 </br>
-ジョブの出力ファイルは、ジョブが実行されたサイトの<font color="red">SCRATCHDISK</font>に書き出されます。しかし、SCRATCHDISKは長くて2週間、残り容量によってはもっと早いうちに自動的に消去されます。出力ファイルをある程度の期間保管したい場合や、Gridジョブで再利用したいジョブを投入する際に出力ファイルの転送先を<font color="red">--destSE</font>オプションで指定します。例えば、TOKYO-LCG2_LOCALGROUPDISKに転送する場合には以下のようになります。
+グリッドジョブの出力ファイルは、ジョブが実行されたサイトの<font color="red">SCRATCHDISK</font>に書き出されます。しかし、SCRATCHDISKは長くて2週間、残り容量によってはもっと早いうちに自動的に消去されます。出力ファイルをある程度の期間保管したい場合や、グリッドジョブで再利用したいジョブを投入する際に出力ファイルの転送先を<font color="red">--destSE</font>オプションで指定します。例えば、TOKYO-LCG2_LOCALGROUPDISKに転送する場合には以下のようになります。
 <dl>
 <dd>$ pathena HelloWorldOptions.py --outDS user.<font color="red">YourNickname</font>.tutorial2016.12 --noOutput --destSE TOKYO-LCG2_LOCALGROUPDISK</dd>
 </dl>
 
-もちろん、<a href="DataManagement.html">データ管理</a>でも説明したようにSCRATCHDISKに出力されたデータセットのレプリカをジョブ終了後にTOKYO-LCG2_LOCALGROUPDISKへ作っておくことこもできます。
+もちろん、<a href="DataManagement.html">データ管理</a>でも説明したようにSCRATCHDISKに出力されたデータセットのレプリカをジョブ終了後にTOKYO-LCG2_LOCALGROUPDISKへ作っておくこともできます。
 
 </p>
 <h2>prun Hello World ジョブ</h2>
@@ -175,12 +175,12 @@ pbook、あるいはPandaMonitorで確認してみてください。終了まで
 それでは、prunでジョブを投入します。
 <dl>
 <dd>$ lsetup panda</dd>
-<dd>$ prun --exec "test.sh" --outDS user.<font color="red">YourNickname</font>.tutorial2016.12 --outputs test.out</dd>
+<dd>$ prun --exec "test.sh" --outDS user.<font color="red">YourNickname</font>.tutorial2016.12.prun_hello_world --outputs test.out</dd>
 </dl>
 --outputsオプションで出力ファイルを指定しています。例えば、ROOTを実行して、histograms.rootというようなファイルを生成する場合には--outputs histograms.rootとするわけです。さて、prunを実行するには prun --exec "実行コマンド"だけでよいことが分かります。pathenaと同様にpbookやPanDA monitorを使ってジョブを確認してください。ジョブが終了したら、出力ファイルをローカルに取り寄せます。
 <dl>
-<dd>$ rucio download user.gkawamur.tutorial2016.12_test.out/</dd>
-<dd>$ cat user.gkawamur.tutorial2016.12_test.out/user.gkawamur.7939538._000001.test.out</dd>
+<dd>$ rucio download user.gkawamur.tutorial2016.12.prun_hello_world_test.out/</dd>
+<dd>$ cat user.gkawamur.tutorial2016.12.prun_hello_world_test.out/user.gkawamur.7939538._000001.test.out</dd>
 </dl>
 
          </p>
@@ -223,7 +223,7 @@ PyRootグリッド環境を設定するには、以下のように呼び出し�
 </dl>
 
 
-グリッド上のxAODをPyROOTで解析したい場合には、以下のようにコードを用意します。ここで行う処理自体は単純でxAODファイルの羅列されたインプットファイル(デフォルトではinput.txt)を読み込み、電子pTを調べてヒストグラム(デフォルトではhist.root)に書き出します。
+グリッド上のxAODをPyROOTで解析したい場合には、以下のようなPythonスクリプト(<a href="pyroot/xAOD_electron_hist_example.py">xAOD_electron_hist_example.py</a>)を用意します。ここで行う処理自体は単純でxAODファイルの羅列されたインプットファイル(デフォルトではinput.txt)を読み込み、電子pTを調べてヒストグラム(デフォルトではhist.root)に書き出します。
 
 
 <pre class="brush:cpp">
@@ -308,12 +308,18 @@ if __name__ == "__main__":
 
 </pre>
 
-準備が整ったところで最初にローカルマシンで実行してみましょう。
+
+ではファイルを用意します。
 <dl>
 <dd>$ mkdir -v my_lovely_grid_pyroot; cd my_lovely_grid_pyroot</dd>
-<dd>$ wget </dd>
-<dd>$ wget ; chmod 755 rucio-get-files.sh</dd>
-<dd>$ wget ; chmod 755 xAOD_electron_hist_example.py</dd>
+<dd>$ wget --no-check-certificate https://genkawamura.github.io/2016-ATLAS-Japan-computing-tutorial/pyroot/pyroot_env.sh</dd>
+<dd>$ wget --no-check-certificate https://genkawamura.github.io/2016-ATLAS-Japan-computing-tutorial/pyroot/rucio-get-files.sh</dd>
+<dd>$ wget --no-check-certificate https://genkawamura.github.io/2016-ATLAS-Japan-computing-tutorial/pyroot/xAOD_electron_hist_example.py</dd>
+<dd>$ chmod +x rucio-get-files.sh xAOD_electron_hist_example.py</dd>
+</dl>
+
+準備が整ったところで最初にローカルマシンへサンプルのxAODファイルをダウンロードしてPyRootスクリプトをテストしてみましょう。
+<dl>
 <dd>$ source pyroot_env.sh</dd>
 <dd>$ ./rucio-get-files.sh -n 1 </d>
 <dd>$ ls valid2.117050.PowhegPythia_P2011C_ttbar.digit.AOD.e2657_s1933_s1964_r5534/* > input.txt </d>
@@ -331,28 +337,30 @@ if __name__ == "__main__":
 </br>
 <b>prunによるジョブ投入</b>
 </br>
-このジョブを投入すコマンドは以下のようになります。
+このジョブを投入するprunコマンドは以下のようになります。
 <dl>
-<dd>$ prun --useRootCore --inDS=... --forceStaged --exec "echo %IN > input.txt; xAOD_electron_hist_example.py -i input.txt -o hist.root"</dd>
+<dd>$ prun --useRootCore --inDS=... --exec "echo %IN > input.txt; xAOD_electron_hist_example.py -i input.txt -o hist.root"</dd>
 </dl>
---inDSで指定したデータセット(念のため--forceStagedでダウンロードを強制指定)の中にあるファイル名(%INにセットされる)をinput.txtに書き出して、
+--inDSで指定したデータセットの中にあるファイル名(prunにより%INにセットされる)をinput.txtに書き出して、
 xAOD_electron_hist_example.pyがinput.txtに書かれたファイルを読み込んでいく、という順番です。
-では、投入します。
+
+インプットデータセットには200個のrootファイルが含まれています。ここでは１０個のrootファイルを使い、単純に１ファイル１ジョブのルールで分割します(--nFiles=10, --nFiesPerJob=1)。--forceStagedオプションを指定して、強制Stage-inで入力ファイルを計算ノードへ転送します。では、グリッドへ投入します。
 <dl>
 <dd> $ nickname=<font color="red">"YourNickname"</font></dd>
 <dd> $ inDS="valid2.117050.PowhegPythia_P2011C_ttbar.digit.AOD.e2657_s1933_s1964_r5534" </dd>
 <dd> $ outDS="user.${nickname}.tutorial.pyroot.xAOD.v0.1_$$" </dd>
 <dd> $ infile="input.txt" </dd>
 <dd> $ outfile="hist.root" </dd>
-<dd> $ prun --useRootCore --inDS=$inDS --forceStaged --outDS=$outDS --outputs=$outfile --exec="echo %IN > $infile; xAOD_electron_hist_example.py -i $infile -o $outfile" </dd>
+<dd> $ prun --useRootCore --inDS=$inDS --forceStaged --outDS=$outDS --outputs=$outfile --nFiles=10 --nFilesPerJob=1 --exec="echo %IN > $infile; xAOD_electron_hist_example.py -i $infile -o $outfile" </dd>
 </dl>
 
-ジョブが終わればRucioでダウンロードしてROOTのTBrowserで見てみましょう。
+ジョブが終わればRucioでダウンロードできます。出力されたrootファイルはマージされていませんが、ROOTのTBrowserで１ファイルのみを見てみましょう。
 <dl>
-<dd>$ rucio download user.gkawamur.tutorial.pyroot.xAOD.v0.1_76543/</dd>
-<dd>$ root user.gkawamur.tutorial.pyroot.xAOD.v0.1_76543/user.gkawamur.7946627._000001.hist.root </dd>
+<dd>$ rucio download user.gkawamur.tutorial.pyroot.xAOD.v0.1_30934_hist.root/</dd>
+<dd>$ root user.gkawamur.tutorial.pyroot.xAOD.v0.1_30934_hist.root/user.gkawamur.10325809._000001.hist.root </dd>
 <dd>root [1] TBrowser t  </dd>
 </dl>
+
 グリッドで処理することが出来ました。
          </p>
 
