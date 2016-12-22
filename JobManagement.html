@@ -134,36 +134,33 @@ pathena HelloWorldプログラムが正しく動いたことが分かります�
 <p>
 
 </br>
-<b>Evgen イベントジェネレーター</b>
+<b>MCイベントジェネレーター</b>
 </br>
-最初にEvgenを動かしてみましょう。
+
+まず、athenaで（ローカルマシン上で）動くか見てみましょう。<a href="athena_job_options/jobOptions.pythia16.py">このPythiaジョブオプションファイル</a>をダウンロードしてください。このジョブオプションでは５イベントのみを生成します。
 
 <dl>
 <dd>$ asetup 17.2.4,here,setup</dd>
-</dl>
-まず、athenaで（ローカルマシン上で）動くか見てみましょう。<a href="athena_job_options/jobOptions.pythia16.py">このPythiaジョブオプションファイル</a>をダウンロードしてください。このジョブオプションでは５イベントのみを生成します。
-<dl>
+<dd>$ wget --no-check-certificate https://genkawamura.github.io/2016-ATLAS-Japan-computing-tutorial/athena_job_options/jobOptions.pythia16.py</dd>
 <dd>$ athena jobOptions.pythia16.py</dd>
 </dl>
 
-Evgen用のジョブオプションファイルを指定して、５つのジョブをグリッドへ投入します。MC用出力データセットの命名規約は<a href="https://cds.cern.ch/record/1070318/files/gen-int-2007-001.pdf">ここ</a>を参照してください。
+ジョブオプションファイルを指定して、５つのジョブをグリッドへ投入します（合計25イベント）。オフィシャルなデータを出力際のMC用データセットの命名規約は<a href="https://cds.cern.ch/record/1070318/files/gen-int-2007-001.pdf">ここ</a>を参照してください。今回は単にevgen.pool.pythia.v1としておきます。
 <dl>
 <dd>$ lsetup panda</dd>
-<dd>$ pathena jobOptions.pythia16.py --outDS user.<font color="red">YourNickname</font>.456.ccaho.evgen.pool.v5 --split 5</dd>
+<dd>$ pathena jobOptions.pythia16.py --outDS user.<font color="red">YourNickname</font>.evgen.pool.pythia.v1 --split 5</dd>
 </dl>
-pbook、あるいはPandaMonitorで確認してみてください。終了までには10-15分ほど時間がかかります。</br>
+pbook、あるいはPandaMonitorで確認してみてください。終了までには10-15分ほど時間がかかります。出力用コンテナは<font color="red">user.YourNickname.evgen.pool.pythia.v1</font>で始まります。Rucioでダウンロード等するなりしてチェックできます。</br>
 
 </br>
-<b>Analysis スケルトン</b>
+<b>TOKYO-LCG2_LOCALGROUPDISK</b>
 </br>
-次にAnalysis用のスケルトンをテストデータセットを使って動かしてみます。
-
-
-
 ジョブの出力ファイルは、ジョブが実行されたサイトの<font color="red">SCRATCHDISK</font>に書き出されます。しかし、SCRATCHDISKは長くて2週間、残り容量によってはもっと早いうちに自動的に消去されます。出力ファイルをある程度の期間保管したい場合や、Gridジョブで再利用したいジョブを投入する際に出力ファイルの転送先を<font color="red">--destSE</font>オプションで指定します。例えば、TOKYO-LCG2_LOCALGROUPDISKに転送する場合には以下のようになります。
 <dl>
-<dd>$ pathena HelloWorldOptions.py --outDS user.<font color="red">YourNickname</font>.tutorial2016.1 --noOutput --destSE TOKYO-LCG2_LOCALGROUPDISK</dd>
+<dd>$ pathena HelloWorldOptions.py --outDS user.<font color="red">YourNickname</font>.tutorial2016.12 --noOutput --destSE TOKYO-LCG2_LOCALGROUPDISK</dd>
 </dl>
+
+もちろん、<a href="DataManagement.html">データ管理</a>でも説明したようにSCRATCHDISKに出力されたデータセットのレプリカをジョブ終了後にTOKYO-LCG2_LOCALGROUPDISKへ作っておくことこもできます。
 
 </p>
 <h2>prun Hello World ジョブ</h2>
@@ -187,115 +184,173 @@ pbook、あるいはPandaMonitorで確認してみてください。終了まで
 </dl>
 
          </p>
-<h2>prun xAOD 解析ジョブ</h2>
+<h2>prun PyRoot xAOD 解析ジョブ</h2>
          <p>
-さて、一般にグリッド上のxAODをROOTで解析したい場合には、以下のようにコードを用意します。
+
+ここでは、より実用的にPyRootを使用してxAODファイルを読み込みグリッドで処理します。<a href="https://root.cern.ch/pyroot">PyRoot</a>はROOTのライブラリをPythonで使用することができるラッパーですが、単純な処理の場合には非常に簡潔にコードを書くことができるので時間を節約することができます。</br>
+
+</br>
+<b>環境設定</b>
+</br>
+後々のことも考えて（環境設定やデータの準備などの）基本的な処理をShellスクリプトにまとめておきます。
+
+PyRootを実行するにはRootCoreが必要になります。またデータ準備のためにRucioの環境設定、ジョブサブミッションのためにPanDAクライアントの環境設定が必要です。毎回入力するのは面倒なので、<a href="pyroot/pyroot_env.sh">pyroot_env.sh</a>という環境設定スクリプトを書いておきます。pyroot_env.shの内容はCVMFSの環境設定を羅列しただけです。
+
+
 <pre class="brush:cpp">
-#include &lt;TROOT.h&gt;
-#include &lt;TChain.h&gt;
-#include &lt;TFile.h&gt;
+setupATLAS
+rcSetup Base,2.0.2
+rc find_packages
+rc compile
 
-void macrotest()
-{
-  // read a string via file since long string causes memory error in CINT when it is read via stdin
-  std::string argStr;
-  std::ifstream ifs("input.txt");
-  std::getline(ifs,argStr);
-
-  // split by ','
-  std::vector&lt;std::string&gt; fileList;
-  for (size_t i=0,n; i <= argStr.length(); i=n+1) {
-    n = argStr.find_first_of(',',i);
-    if (n == string::npos)
-    n = argStr.length();
-    string tmp = argStr.substr(i,n-i);
-    fileList.push_back(tmp);
-  }
-
-  // open input files
-  TChain fChain("CollectionTree");
-  for (int iFile=0; iFile < fileList.size(); ++iFile) {
-    std::cout &lt;&lt; "open " &lt;&lt; fileList[iFile].c_str() &lt;&lt; std::endl;
-    fChain.Add(fileList[iFile].c_str());
-  }
-
-  // main loop
-...
-...
-
-}
+lsetup rucio
+lsetup panda
 </pre>
-ジョブを投入すコマンドは以下のようになります。
+
+PyRootグリッド環境を設定するには、以下のように呼び出します。
 <dl>
-<dd>$ prun --exec "echo %IN > input.txt; root.exe -b -q macrotest.C" --inDS ...</dd>
+<dd>$ source pyroot_env.sh</dd>
 </dl>
---inDSで指定したデータセットの中にあるファイル名をinput.txtに書き出して、
-macrotest.Cがinput.txtに書かれたファイルを読み込んでいく、という順番です。しかし、
-<a href="RootCore">xAOD (ROOT)</a>で用いたEventLoopにはprun用のドライバが用意されているので、
-手順を簡単にできます。では、実際にxAODの解析ジョブをグリッドに投入してみましょう。クリーンな環境で始めるために、
-新しいセッションを開いて、環境設定から始めます。
+
+残念ながらRucioはデータセット内の特定ファイルのみのダウンロードに対応していません（<a href="http://rucio.cern.ch/client_howto.html#download-specific-files-from-a-dataset">Rucioドキュメントでは実装予定のはずですが未だ未実装です</a>）。そのためここでは、テストのためにgridftpなどのプロトコルからランダムにイベントファイルのみを直接ダウンロードできるように<a href="pyroot/rucio-get-files.sh">rucio-get-files.sh</a>というスクリプトを書いておきます。
+
 <dl>
-<dd>$ setupATLAS</dd>
-<dd>$ lsetup panda</dd>
-<dd>$ lsetup rcsetup</dd>
-<dd>$ cd grid</dd>
+<dd>$ ./rucio-get-files.sh [options]</d>
+<dd></dd>
+<dd> -d:  dataset [default: valid2.117050.PowhegPythia_P2011C_ttbar.digit.AOD.e2657_s1933_s1964_r5534] </dd>
+<dd> -n:  number of files [default: 1] </dd>
+<dd></dd>
 </dl>
-run/ATestRun.cxxをATestSubmit.cxxとしてgridディレクトリにコピーしておきます。ATestSubmit.cxxの内容は以下です。
+
+
+グリッド上のxAODをPyROOTで解析したい場合には、以下のようにコードを用意します。ここで行う処理自体は単純でxAODファイルの羅列されたインプットファイル(デフォルトではinput.txt)を読み込み、電子pTを調べてヒストグラム(デフォルトではhist.root)に書き出します。
+
+
 <pre class="brush:cpp">
-void ATestSubmit (const std::string& submitDir)
-{
-  // Set up the job for xAOD access:
-  xAOD::Init().ignore();
+#!/usr/bin/env python
 
-  // create a new sample handler to describe the data files we use
-  SH::SampleHandler sh;
+# based on an example here: https://twiki.cern.ch/twiki/bin/view/AtlasComputing/SoftwareTutorialxAODEDM#PyROOT_with_the_xAOD
 
-  // use SampleHandler to scan all of the subdirectories of a directory for particular MC single file:
-  SH::scanDQ2 (sh, "user.tomoe.tutorial2016.AOD.1");
+import sys, os, time, glob, re
+import getopt
+import ROOT
 
-  // set the name of the tree in our files
-  // in the xAOD the TTree containing the EDM containers is "CollectionTree"
-  sh.setMetaString ("nc_tree", "CollectionTree");
 
-  // print out the samples we found
-  sh.print ();
+def main(argv):
+    # parsing command arguments
+    inputfile='input.txt'
+    outputfile='hist.root'
+    try:
+        opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
+    except getopt.GetoptError:
+        print 'xAOD_electron_hist_example.py -i [inputfile] -o [outputfile]'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'xAOD_electron_hist_example.py -i [inputfile] -o [outputfile]'
+            sys.exit()
+        elif opt in ("-i", "--input"):
+            inputfile = arg
+        elif opt in ("-o", "--output"):
+            outputfile = arg
+            
+    print 'Input file is', inputfile
+    print 'Output file is', outputfile
 
-  // this is the basic description of our job
-  EL::Job job;
-  job.sampleHandler (sh); // use SampleHandler in this job
-  job.options()->setDouble (EL::Job::optMaxEvents, 10);
+    # Set up ROOT and RootCore:
+    ROOT.gROOT.Macro( '$ROOTCOREDIR/scripts/load_packages.C' )
+    
+    # Initialize the xAOD infrastructure: 
+    ROOT.xAOD.Init()
 
-  // define an output and an ntuple associated to that output
-  EL::OutputStream output  ("myOutput");
-  job.outputAdd (output);
-  EL::NTupleSvc *ntuple = new EL::NTupleSvc ("myOutput");
-  job.algsAdd (ntuple);
+    # a histogram for our output
+    outfile=ROOT.TFile.Open(outputfile,"RECREATE")
+    pthist=ROOT.TH1F("pt","pt;p_{T} [GeV];Entries / 10 GeV",100,0,1000)
 
-  // add our algorithm to the job
-  MyAnalysisAlg *alg = new MyAnalysisAlg;
+    treeName = "CollectionTree" # default when making transient tree anyway
 
-  // later on we'll add some configuration options for our algorithm that go here
-  job.algsAdd (alg);
-  alg->outputName = "myOutput";
+    # Loop on the input files.  There are surely ways to chain the trees together,
+    # which is left as an exercise to the reader.
+    for i in ([file for file in open(inputfile).read().strip().split(',')]):
+        print "Opening file "+i
+        f = ROOT.TFile.Open(i)
+        
+        if not f:
+            print "Couldn't open input file "+i+"...  will not continue."
+            sys.exit(1)
+            pass
 
-  // make the driver we want to use:
-  // this one works by running the algorithm directly:
-  EL::PrunDriver driver;
-  driver.options()->setString("nc_outputSampleName", "user.gkawamur.tutorial2016.12");
-  // we can use other drivers to run things on the Grid, with PROOF, etc.
+        # Make the "transient tree":
+        t = ROOT.xAOD.MakeTransientTree( f, treeName)
 
-  // process the job using the driver
-  driver.submitOnly (job, submitDir);
-}
+        # Print some information:
+        print( "Number of input events: %s" % t.GetEntries() )
+        for entry in xrange( t.GetEntries() ):
+            t.GetEntry( entry )
+            print( "Processing run #%i, event #%i" % ( t.EventInfo.runNumber(), t.EventInfo.eventNumber() ) )
+            print( "Number of electrons: %i" % len( t.ElectronCollection ) )
+            # loop over electron collection
+            for el in t.ElectronCollection:
+                pthist.Fill(el.pt()/1000.)
+                pass # end for loop over electron collection
+            pass # end loop over entries
+        f.Close()
+        pass
+
+    outfile.cd()
+    pthist.Write()
+    outfile.Close()
+    
+    sys.exit(0)
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
+
 </pre>
-ローカルで実行する場合に比べて、scanとdriverが変わっています。では、投入します。
+
+準備が整ったところで最初にローカルマシンで実行してみましょう。
 <dl>
-<dd>$ root -l -b -q '$ROOTCOREDIR/scripts/load_packages.C' 'ATestSubmit.cxx ("myGridJob")'</dd>
+<dd>$ mkdir -v my_lovely_grid_pyroot; cd my_lovely_grid_pyroot</dd>
+<dd>$ wget </dd>
+<dd>$ wget ; chmod 755 rucio-get-files.sh</dd>
+<dd>$ wget ; chmod 755 xAOD_electron_hist_example.py</dd>
+<dd>$ source pyroot_env.sh</dd>
+<dd>$ ./rucio-get-files.sh -n 1 </d>
+<dd>$ ls valid2.117050.PowhegPythia_P2011C_ttbar.digit.AOD.e2657_s1933_s1964_r5534/* > input.txt </d>
+<dd>$ ./xAOD_electron_hist_example.py -i input.txt -o hist.root</d>
 </dl>
-投入に少々時間がかかります。ジョブが終わればまたRucioでダウンロードしてROOTのTBrowserで見てみましょう。
+
+うまく動けばヒストグラムが見れるはずです。
 <dl>
-<dd>$ rucio download user.gkawamur.tutorial2016.12_hist/</dd>
-<dd>$ root user.gkawamur.tutorial2016.12_hist/user.tomoe.7946627._000001.hist-output.root  </dd>
+<dd>$ root hist.root</dd> 
+<dd>root [1] TBrowser t</dd>
+</dl>
+
+<div align="center"><img src="./images/pyroot_electron_hist.png" width="720" ></div>
+
+</br>
+<b>prunによるジョブ投入</b>
+</br>
+このジョブを投入すコマンドは以下のようになります。
+<dl>
+<dd>$ prun --useRootCore --inDS=... --forceStaged --exec "echo %IN > input.txt; xAOD_electron_hist_example.py -i input.txt -o hist.root"</dd>
+</dl>
+--inDSで指定したデータセット(念のため--forceStagedでダウンロードを強制指定)の中にあるファイル名(%INにセットされる)をinput.txtに書き出して、
+xAOD_electron_hist_example.pyがinput.txtに書かれたファイルを読み込んでいく、という順番です。
+では、投入します。
+<dl>
+<dd> $ nickname=<font color="red">"YourNickname"</font></dd>
+<dd> $ inDS="valid2.117050.PowhegPythia_P2011C_ttbar.digit.AOD.e2657_s1933_s1964_r5534" </dd>
+<dd> $ outDS="user.${nickname}.tutorial.pyroot.xAOD.v0.1_$$" </dd>
+<dd> $ infile="input.txt" </dd>
+<dd> $ outfile="hist.root" </dd>
+<dd> $ prun --useRootCore --inDS=$inDS --forceStaged --outDS=$outDS --outputs=$outfile --exec="echo %IN > $infile; xAOD_electron_hist_example.py -i $infile -o $outfile" </dd>
+</dl>
+
+ジョブが終わればRucioでダウンロードしてROOTのTBrowserで見てみましょう。
+<dl>
+<dd>$ rucio download user.gkawamur.tutorial.pyroot.xAOD.v0.1_76543/</dd>
+<dd>$ root user.gkawamur.tutorial.pyroot.xAOD.v0.1_76543/user.gkawamur.7946627._000001.hist.root </dd>
 <dd>root [1] TBrowser t  </dd>
 </dl>
 グリッドで処理することが出来ました。
@@ -306,7 +361,9 @@ void ATestSubmit (const std::string& submitDir)
 <a href="http://tomoe.web.cern.ch/tomoe/AtlasSoftWareTutorial/2016/PanDA.html">ATLASソフトウェア講習会2016.01 ジョブ管理</a></br>
 <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">Twiki - The PanDA Production and Distributed Analysis System</a></br>
 <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaAthena">Twiki - How to submit Athena jobs to Panda</a></br>
-<a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialGettingDatasets">Software twiki tutorial</a></br>
+<a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialGettingDatasets">Twiki - Software tutorial</a></br>
+<a href="https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PhysicsAnalysisWorkBookRel20DxAODs">Twiki - Derived xAODs</a></br>
+<a href="http://phyweb.lbl.gov/atlaswiki/index.php/Analyzing_xAOD_in_CINT/PyROOT">Analyzing xAOD in CINT and PyROOT</a></br>
 ATLAS-D meeting 2016 Grid/Rucio Tutorial, Gen Kawamura</br>
 <a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialUsingTheGrid">Monitoring Your Grid Jobs, Andrew Washbrook University of Edinburgh, ATLAS Software & Computing Tutorials 14th January 2015 PUC, Chile Software tutorial using Grid</a></br>
 <a href="https://indico.cern.ch/event/465378/">ATLAS Software Tutorial, Feb 2016</a></br>
