@@ -233,13 +233,13 @@ TOKYO-LCG2_DATADISKにもこのデータセットがあることが分かりま�
 </br>
 <b>Rucio CLIによるレプリカ作成</b>
 </br>
-例: TOKYO-LCG2_SCRATCHDISKへの転送
+例: TOKYO-LCG2_SCRATCHDISKへの転送。以下の例では<i>data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466</i>というデータセットを指定していますが、既にレプリカが目的のRSEにある場合はレプリカは作成されません。適宜自分のデータセット等で置き換えてください。適当な例がない場合は、<a href="http://bigpanda.cern.ch/">Panda</a>ジョブの（サイズが小さい）適当なログファイル用データセットなどで試せます。rucio lsやrucio list-filesなどで転送前にデータセットを確認してみてください。転送後、SCRATCHDISKのデータセットは2週間ほどで消去されます。
 </br>
 <dl>
 <dd>$ rucio add-rule data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466 --grouping DATASET 1 "TOKYO-LCG2_SCRATCHDISK"</dd>
 <dd><font color="red">ルール実行後Transfer IDをチェック</font></dd>
 </br>
-例: TOKYO-LCG2_LOCALGROUPDISKへの転送
+例: TOKYO-LCG2_LOCALGROUPDISKへの転送。データは永続的に保持されます。自分自身でデータを管理する必要があります。
 </br>
 <dl>
 <dd>$ rucio add-rule data15_13TeV:data15_13TeV.00272529.physics_Main.merge.DAOD_ZMUMU.f611_m1453_f611_m1466 --grouping DATASET 1 "TOKYO-LCG2_LOCALGROUPDISK"</dd>
